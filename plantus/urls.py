@@ -16,6 +16,9 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from plantus.views import WelcomeView
+
 urlpatterns = [
+    url(r'^$', WelcomeView.as_view(), name="welcome"),
     url(r'^admin/', admin.site.urls),
 ]
