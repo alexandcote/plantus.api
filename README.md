@@ -11,15 +11,28 @@
   ```
   brew install pyenv-virtualenv
   ```
+  
+3. Add some config to your .bash_profile or .zshrc
+  ```
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+  ```
 
-3. Install python good python version
+4. Be sure to have the last version of xcode
+  ```
+  xcode-select --install
+  ```
+
+5. Install python good python version
   ```
   pyenv install 3.5.3
   ````
 
 4. Create a virtualenv for the project
   ```
-  pyenv virtualenv 3.5.2 plantus
+  pyenv virtualenv 3.5.3 plantus
   ```
 
 5. Install PostgreSQL
