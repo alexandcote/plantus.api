@@ -30,48 +30,58 @@
   pyenv install 3.5.3
   ````
 
-4. Create a virtualenv for the project
+6. Create a virtualenv for the project
   ```
   pyenv virtualenv 3.5.3 plantus
   ```
 
-5. Install PostgreSQL
+7. Install PostgreSQL
   ```
   brew install postgres
   ```
+  
+8. Start the postgresql server
+  ```
+  brew services start postgresql
+  ```
 
-6. Create the database
+9. Create the database
   ```
   createdb plantus_development
   ```
   
-6. Create the user
+10. Create the user
   ```
   createuser -s plantus
   ```
 
-7. Clone this repository
+11. Clone this repository
   ```
   git clone git@github.com:alexandcote/plantus.api.git
   ```
 
-5. Create a file in the root of the project
+12. Create a file in the root of the project
   ```
   cd plantus.api
   echo 'plantus' >> .python-version
   ```
 
-8. In the project directory, install the dependencies
+13. In the project directory, install the dependencies
   ```
   pip install -r requirements-test.txt
   ```
+  
+14. Copy the .env file
+  ```
+  cp .env.development .env
+  ``` 
 
-9. Do the migration of the database
+15. Do the migration of the database
   ```
   python manage.py migrate
   ```
 
-10. Run the server
+16. Run the server
   ```
   python manage.py runserver
   ```
