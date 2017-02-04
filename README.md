@@ -81,7 +81,12 @@
   python manage.py migrate
   ```
 
-16. Run the server
+16. Load default fixtures
+  ```
+  python manage.py loaddata ./authentication/fixtures/users.json
+  ```
+
+17. Run the server
   ```
   python manage.py runserver
   ```
