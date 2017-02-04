@@ -16,5 +16,6 @@ class WelcomeView(APIView):
         Return the welcome message.
         """
         return Response({
+            'places': reverse('place-list', request=request, format=format),
             'users': reverse('user-list', request=request, format=format),
         })
