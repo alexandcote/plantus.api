@@ -10,4 +10,3 @@ class PlaceViewSet(ModelViewSet):
     """
     queryset = Place.objects.all()
     serializer_class = PlaceSerializer
-

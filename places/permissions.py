@@ -11,5 +11,3 @@
 # - You can view any places
 # - You can edit any places
 # - You can delete any places
-
-
