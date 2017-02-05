@@ -15,6 +15,9 @@ class TestUserSerializer(TestCase):
         }
 
     def test_empty_user(self):
+        """
+        Create a user empty user should have those fields
+        """
         serializer = UserSerializer()
         data = {
             'first_name': '',
@@ -25,6 +28,9 @@ class TestUserSerializer(TestCase):
         self.assertEqual(serializer.data, data)
 
     def test_required_fields(self):
+        """
+        Create a empty user should required those fields
+        """
         serializer = UserSerializer(data={})
         is_valid = serializer.is_valid()
 
@@ -39,6 +45,9 @@ class TestUserSerializer(TestCase):
         self.assertEqual(serializer.errors, expected_error)
 
     def test_create(self):
+        """
+        Create a user with minimum data
+        """
         serializer = UserSerializer(data=self.data)
         is_valid = serializer.is_valid()
         self.assertTrue(is_valid)

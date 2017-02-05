@@ -252,3 +252,5 @@ class TestSuperUsersDelete(APITestCase):
         response = self.client.delete(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(User.objects.count(), 1)
+
+# TODO: Add token test
