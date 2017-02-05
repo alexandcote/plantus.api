@@ -213,4 +213,42 @@ class TestUsersCustomEndpoints(APITestCase):
         self.assertTrue(result['url'].endswith(user_url))
         self.assertEqual(len(result['places']), 0)
 
-# TODO: Add test for SuperUser
+
+class TestSuperUserList(APITestCase):
+    def setUp(self):
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+
+    def test_users_list(self):
+        """
+        Ensure that superuser can list all users
+        """
+        url = reverse('user-list')
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestSuperUsersDelete(APITestCase):
+    def setUp(self):
+        self.user = UserFactory(is_staff=True, is_superuser=True)
+        self.user2 = UserFactory()
+
+    def test_current_users_delete(self):
+        """
+        Ensure that user can't delete it self with the /users/<id> endpoint
+        """
+        url = reverse('user-detail', kwargs={"pk": self.user.pk})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_other_users_delete(self):
+        """
+        Ensure that user can't delete other users with the /users/<id> endpoint
+        """
+        url = reverse('user-detail', kwargs={"pk": self.user2.pk})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(User.objects.count(), 1)

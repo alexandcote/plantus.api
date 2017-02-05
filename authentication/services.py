@@ -30,6 +30,8 @@ def update_user(user, data):
     user.first_name = data.get('first_name', user.first_name)
     user.last_name = data.get('last_name', user.last_name)
     user.email = data.get('email', user.email)
+    user.is_staff = data.get('is_staff', user.is_staff)
+    user.is_superuser = data.get('is_superuser', user.is_superuser)
     password = data.get('password', None)
 
     if password:

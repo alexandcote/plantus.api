@@ -1,9 +1,9 @@
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer
 
 from places.models import Place
 
 
-class PlaceSerializer(HyperlinkedModelSerializer):
+class PlaceSerializer(ModelSerializer):
     class Meta:
         model = Place
         fields = (
@@ -14,3 +14,6 @@ class PlaceSerializer(HyperlinkedModelSerializer):
             'url',
             'users'
         )
+        extra_kwargs = {
+            'users': {'required': False},
+        }

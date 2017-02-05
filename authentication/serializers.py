@@ -1,10 +1,10 @@
-from rest_framework.serializers import HyperlinkedModelSerializer
+from rest_framework.serializers import ModelSerializer
 
 from authentication.models import User
 from authentication.services import create_user, update_user
 
 
-class UserSerializer(HyperlinkedModelSerializer):
+class UserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = (
@@ -16,7 +16,10 @@ class UserSerializer(HyperlinkedModelSerializer):
             'url',
             'places'
         )
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'places': {'read_only': True},
+        }
 
     def create(self, validated_data):
         """
