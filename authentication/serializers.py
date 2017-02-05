@@ -1,13 +1,10 @@
-from rest_framework.relations import HyperlinkedIdentityField
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import HyperlinkedModelSerializer
 
 from authentication.models import User
 from authentication.services import create_user, update_user
 
 
-class UserSerializer(ModelSerializer):
-    places = HyperlinkedIdentityField(view_name='user-places')
-
+class UserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = User
         fields = (
