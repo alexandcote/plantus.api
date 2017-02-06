@@ -8,3 +8,5 @@ def configure(settings):
 
     settings.ALLOWED_HOSTS = ['plantus.xyz']
 
+    settings.STATIC_ROOT = '/var/www/plantus.xyz/static/'
+    settings.STATIC_URL = '/static/'

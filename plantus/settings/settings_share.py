@@ -152,7 +152,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-STATIC_ROOT = '/var/www/plantus.xyz/static/'
 STATIC_URL = '/static/'
 
 try:
@@ -161,7 +160,7 @@ try:
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
     else:
-        from loyalty.settings.setting_production import configure
+        from loyalty.settings.settings_production import configure
     current_module = sys.modules[__name__]
     configure(current_module)
 except ImportError:
