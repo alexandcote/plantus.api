@@ -92,3 +92,6 @@ ENV/
 
 # Paw endpoints
 *.paw
+
+# IDE
+.idea
