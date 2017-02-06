@@ -157,8 +157,6 @@ STATIC_URL = '/static/'
 try:
     if PLANTUS_ENV == 'development':
         from plantus.settings.settings_development import configure
-    elif PLANTUS_ENV == 'staging':
-        from plantus.settings.settings_staging import configure
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
     else:
