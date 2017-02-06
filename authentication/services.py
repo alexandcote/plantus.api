@@ -3,7 +3,7 @@ from authentication.models import User
 
 def create_user(data):
     """
-    Create a user with parameters and log the transaction
+    Create a user with parameters
     """
     first_name = data.get('first_name', '')
     last_name = data.get('last_name', '')
@@ -25,7 +25,7 @@ def create_user(data):
 
 def update_user(user, data):
     """
-    Update user with parameters and log the transaction
+    Update user with parameters
     """
     user.first_name = data.get('first_name', user.first_name)
     user.last_name = data.get('last_name', user.last_name)
