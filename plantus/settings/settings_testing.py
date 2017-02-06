@@ -6,6 +6,6 @@ def configure(settings):
         "django.contrib.auth.hashers.UnsaltedMD5PasswordHasher",)
 
     settings.NOSE_ARGS = (
-        '--cover-package=plantus',
+        '--cover-package=plantus,authentication,places',
         '--cover-inclusive',
     )

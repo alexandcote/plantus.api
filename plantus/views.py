@@ -1,16 +1,21 @@
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 
 class WelcomeView(APIView):
     """
     API endpoint for the welcome message.
-    :param request:
-    :return:
     """
+    permission_classes = [AllowAny]
 
-    def get(self, request, format=None):
+    @staticmethod
+    def get(request, format=None):
         """
         Return the welcome message.
         """
-        return Response("Welcome to the PlantUS API")
+        return Response({
+            'places': reverse('place-list', request=request, format=format),
+            'users': reverse('user-list', request=request, format=format),
+        })

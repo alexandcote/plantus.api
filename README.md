@@ -80,10 +80,15 @@
 
 15. Do the migration of the database
   ```
-  python manage.py migrate
+  ./manage.py migrate
   ```
 
-16. Run the server
+16. Load default fixtures
   ```
-  python manage.py runserver
+  ./manage.py loaddata ./**/fixtures/*.json
+  ```
+
+17. Run the server
+  ```
+  ./manage.py runserver
   ```

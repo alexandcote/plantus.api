@@ -1,0 +1,32 @@
+[
+    {
+        "model": "places.place",
+        "pk": 1,
+        "fields": {
+            "name": "Villa #1",
+            "ip_address": "127.0.0.1",
+            "port": "8081",
+            "users": [1,2,3]
+        }
+    },
+    {
+        "model": "places.place",
+        "pk": 2,
+        "fields": {
+            "name": "Villa #2",
+            "ip_address": "127.0.0.1",
+            "port": "8082",
+            "users": [1,2]
+        }
+    },
+    {
+        "model": "places.place",
+        "pk": 3,
+        "fields": {
+            "name": "Villa #3",
+            "ip_address": "127.0.0.1",
+            "port": "8083",
+            "users": [1,3]
+        }
+    }
+]
