@@ -152,6 +152,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+STATIC_ROOT = '/var/www/plantus.xyz/static/'
 STATIC_URL = '/static/'
 
 try:
