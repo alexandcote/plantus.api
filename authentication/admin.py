@@ -5,9 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('__str__', 'email')
+    list_display = ('id', '__str__', 'email')
     list_filter = ()
-    ordering = ('email',)
+    list_display_links = ('__str__',)
+
+    ordering = ('id',)
     fieldsets = (
         (_('Personal info'), {
             'fields': ('first_name', 'last_name', 'email', 'password')}),

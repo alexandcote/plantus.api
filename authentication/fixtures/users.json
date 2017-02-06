@@ -40,5 +40,47 @@
             "created_at": "2017-01-01 17:00:00.000000+00:00",
             "updated_at": "2017-01-01 17:00:00.000000+00:00"
         }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 4,
+        "fields": {
+            "first_name": "Philippe",
+            "last_name": "Collin",
+            "email": "philcmd@gmail.com",
+            "is_staff": true,
+            "is_superuser": true,
+            "password": "pbkdf2_sha256$30000$taMtxSLwMlnf$2quMA4xeFzNVFgGCvRXJMsWwv9vUXTr/4ftxOEkJLhE=",
+            "created_at": "2017-01-01 17:00:00.000000+00:00",
+            "updated_at": "2017-01-01 17:00:00.000000+00:00"
+        }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 5,
+        "fields": {
+            "first_name": "Jonathan",
+            "last_name": "Santerre",
+            "email": "santerrejonathan@gmail.com",
+            "is_staff": true,
+            "is_superuser": true,
+            "password": "pbkdf2_sha256$30000$taMtxSLwMlnf$2quMA4xeFzNVFgGCvRXJMsWwv9vUXTr/4ftxOEkJLhE=",
+            "created_at": "2017-01-01 17:00:00.000000+00:00",
+            "updated_at": "2017-01-01 17:00:00.000000+00:00"
+        }
+    },
+    {
+        "model": "authentication.user",
+        "pk": 6,
+        "fields": {
+            "first_name": "Julien",
+            "last_name": "Chouinard",
+            "email": "zagrivera@gmail.com",
+            "is_staff": true,
+            "is_superuser": true,
+            "password": "pbkdf2_sha256$30000$taMtxSLwMlnf$2quMA4xeFzNVFgGCvRXJMsWwv9vUXTr/4ftxOEkJLhE=",
+            "created_at": "2017-01-01 17:00:00.000000+00:00",
+            "updated_at": "2017-01-01 17:00:00.000000+00:00"
+        }
     }
 ]
