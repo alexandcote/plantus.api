@@ -12,6 +12,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE",
-                      "spare.settings.settings_share")
+                      "plantus.settings.settings_share")
 
 application = get_wsgi_application()

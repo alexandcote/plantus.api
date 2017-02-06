@@ -154,6 +154,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+STATIC_ROOT = '/home/spare/static/'
+STATIC_URL = '/static/'
+
 try:
     if PLANTUS_ENV == 'development':
         from plantus.settings.settings_development import configure
