@@ -25,7 +25,9 @@ class TestsUsersCreate(APITestCase):
         self.assertEqual(user.first_name, data["first_name"])
         self.assertEqual(user.last_name, data["last_name"])
         self.assertEqual(user.email, data["email"])
-        self.assertEqual(user.check_password(data["password"]), True)
+        self.assertTrue(user.check_password(data["password"]))
+        self.assertFalse(user.is_staff)
+        self.assertFalse(user.is_superuser)
 
 
 class TestsUsersList(APITestCase):

@@ -1,7 +1,10 @@
 from rest_framework.serializers import ModelSerializer
 
 from authentication.models import User
-from authentication.services import create_user, update_user
+from authentication.services import (
+    create_user,
+    update_user
+)
 
 
 class UserSerializer(ModelSerializer):

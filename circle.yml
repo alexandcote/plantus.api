@@ -6,7 +6,7 @@ machine:
     version: 3.5.2
 
   hosts:
-    api.sparefindr.com: 127.0.0.1
+    plantus.xyz: 127.0.0.1
 
 dependencies:
   override:

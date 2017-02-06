@@ -1,12 +1,10 @@
 from django.test import TestCase
 
 from authentication.serializers import UserSerializer
-from places.factories import PlaceFactory
 
 
 class TestUserSerializer(TestCase):
     def setUp(self):
-        self.place = PlaceFactory()
         self.data = {
             'first_name': 'Wayne',
             'last_name': 'Gretzky',

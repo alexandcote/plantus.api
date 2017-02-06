@@ -5,12 +5,12 @@ def create_user(data):
     """
     Create a user with parameters and log the transaction
     """
-    first_name = data.get("first_name", '')
-    last_name = data.get("last_name", '')
-    email = data.get("email", None)
-    password = data.get("password", None)
-    is_staff = data.get("is_staff", False)
-    is_superuser = data.get("is_superuser", False)
+    first_name = data.get('first_name', '')
+    last_name = data.get('last_name', '')
+    email = data.get('email', None)
+    password = data.get('password', None)
+    is_staff = data.get('is_staff', False)
+    is_superuser = data.get('is_superuser', False)
 
     normalize_email = User.objects.normalize_email(email)
     user = User(email=normalize_email, first_name=first_name,
