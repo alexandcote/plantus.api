@@ -160,7 +160,7 @@ try:
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
     else:
-        from loyalty.settings.settings_production import configure
+        from plantus.settings.settings_production import configure
     current_module = sys.modules[__name__]
     configure(current_module)
 except ImportError:
