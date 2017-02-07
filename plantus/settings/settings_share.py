@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+import datetime
 import os
 import sys
 
@@ -53,6 +53,10 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'authentication.user'
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(weeks=52),
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
