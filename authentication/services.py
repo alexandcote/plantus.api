@@ -1,4 +1,5 @@
 from authentication.models import User
+from places.models import Place
 
 
 def create_user(data):
@@ -11,6 +12,7 @@ def create_user(data):
     password = data.get('password', None)
     is_staff = data.get('is_staff', False)
     is_superuser = data.get('is_superuser', False)
+    places = data.get('places', None)
 
     normalize_email = User.objects.normalize_email(email)
     user = User(email=normalize_email, first_name=first_name,
@@ -19,6 +21,9 @@ def create_user(data):
 
     user.set_password(password)
     user.save()
+
+    if places:
+        user.places.set(places)
 
     return user
 
@@ -33,9 +38,13 @@ def update_user(user, data):
     user.is_staff = data.get('is_staff', user.is_staff)
     user.is_superuser = data.get('is_superuser', user.is_superuser)
     password = data.get('password', None)
+    places = data.get('places', None)
 
     if password:
         user.set_password(password)
+
+    if places:
+        user.places.set(places)
 
     user.save()
 

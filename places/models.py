@@ -7,7 +7,8 @@ class Place(models.Model):
     name = models.CharField(max_length=255, blank=False, null=False)
     ip_address = models.GenericIPAddressField(blank=False, null=False)
     port = models.IntegerField(blank=False, null=False)
-    users = models.ManyToManyField(AUTH_USER_MODEL, related_name='places')
+    users = models.ManyToManyField(AUTH_USER_MODEL, related_name='places',
+                                   blank=True)
 
     def __str__(self):
         return self.name
