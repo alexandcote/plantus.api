@@ -5,8 +5,10 @@ def configure(settings):
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
-
     settings.ALLOWED_HOSTS = ['plantus.xyz']
-
     settings.STATIC_ROOT = '/var/www/plantus.xyz/static/'
-    settings.STATIC_URL = '/static/'
+
+    # Celery configuration
+    settings.CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
+    settings.CELERY_TASK_ALWAYS_EAGER = False
+    settings.CELERY_RESULT_BACKEND = 'django-db'

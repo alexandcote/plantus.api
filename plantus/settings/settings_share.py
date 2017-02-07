@@ -122,8 +122,10 @@ DATABASES = {
     }
 }
 
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
-CELERY_RESULT_BACKEND = 'django-db'
+# Celery configuration
+CELERY_BROKER_URL = "memory://"
+CELERY_TASK_ALWAYS_EAGER = True
+
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_ACCEPT_CONTENT = ['json']
