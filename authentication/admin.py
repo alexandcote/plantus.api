@@ -4,6 +4,7 @@ from authentication.models import User
 from django.utils.translation import ugettext_lazy as _
 
 
+@admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = ('id', '__str__', 'email')
     list_filter = ()
@@ -20,6 +21,3 @@ class CustomUserAdmin(UserAdmin):
             'fields': ('last_login', 'created_at', 'updated_at')}),
     )
     readonly_fields = ('created_at', 'updated_at',)
-
-admin.site.register(User, CustomUserAdmin)
-
