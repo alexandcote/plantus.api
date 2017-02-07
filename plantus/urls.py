@@ -20,9 +20,9 @@ router.register(r'places', PlaceViewSet)
 urlpatterns = [
     url(r'^$', WelcomeView.as_view(), name='welcome'),
     url(r'^auth/token/', obtain_jwt_token, name='auth-token'),
+    url(r'^', include(router.urls)),
 ]
 
 urlpatterns += i18n_patterns(
     url(r'^admin/', admin.site.urls),
-    url(r'^', include(router.urls)),
 )
