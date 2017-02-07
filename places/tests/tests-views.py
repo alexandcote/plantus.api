@@ -38,12 +38,12 @@ class TestPlacesList(APITestCase):
         self.user = UserFactory()
         self.user2 = UserFactory()
         self.place1 = PlaceFactory(users=(self.user,))
-        self.place3 = PlaceFactory(users=(self.user2,))
-        self.place4 = PlaceFactory(users=())
+        self.place2 = PlaceFactory(users=(self.user2,))
+        self.place3 = PlaceFactory(users=())
 
     def test_place_list(self):
         """
-        Ensure that normal user can't list all places
+        Ensure that normal user can list his places
         """
         url = reverse('place-list')
         self.client.force_authenticate(user=self.user)
@@ -56,3 +56,18 @@ class TestPlacesList(APITestCase):
         self.assertEqual(result[0]['name'], self.place1.name)
         self.assertEqual(result[0]['ip_address'], self.place1.ip_address)
         self.assertEqual(result[0]['port'], self.place1.port)
+
+    def test_place_list_unavaible(self):
+        """
+        Ensure that normal user can't list all places
+        """
+        url = reverse('place-list')
+        self.client.force_authenticate(user=self.user2)
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data
+        self.assertEqual(len(result), 1)
+        self.assertNotEqual(result[0]['name'], self.place1.name)
+        self.assertEqual(result[0]['name'], self.place2.name)
+        self.assertNotEqual(result[0]['name'], self.place3.name)
