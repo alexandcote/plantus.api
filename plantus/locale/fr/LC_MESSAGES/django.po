@@ -20,8 +20,8 @@ msgstr ""
 
 #: plantus/settings/settings_share.py:161
 msgid "French"
-msgstr ""
+msgstr "Français"
 
 #: plantus/settings/settings_share.py:162
 msgid "English"
-msgstr ""
+msgstr "Anglais"
