@@ -5,7 +5,7 @@ def configure(settings):
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
-    settings.ALLOWED_HOSTS = ['plantus.xyz']
+    settings.ALLOWED_HOSTS = ['api.plantus.xyz']
     settings.STATIC_ROOT = '/var/www/plantus.xyz/static/'
 
     # Celery configuration
