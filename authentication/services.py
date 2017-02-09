@@ -1,5 +1,4 @@
 from authentication.models import User
-from places.models import Place
 
 
 def create_user(data):

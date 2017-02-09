@@ -1,10 +1,11 @@
 from django.test import TestCase
 
+from authentication.factories import UserFactory
 from places.factories import PlaceFactory
 from places.models import Place
 from places.services import update_place, create_place
 
-# TODO: Aouter les tests pour les users dans la creation et l'update des places
+
 class TestCreatePlace(TestCase):
 
     def test_create_empty_place(self):
@@ -31,7 +32,26 @@ class TestCreatePlace(TestCase):
         self.assertEqual(place.name, data['name'])
         self.assertEqual(place.ip_address, data['ip_address'])
         self.assertEqual(place.port, data['port'])
+        self.assertEqual(Place.objects.count(), 1)
+
+    def test_create_place_with_users(self):
+        """
+        Create a place with create_place service
+        """
+        user = UserFactory()
+        user2 = UserFactory()
+        data = {
+            'name': 'Ismael',
+            'ip_address': '127.15.0.0',
+            'port': '9',
+            'users': [user.id, user2.id]
+        }
+        place = create_place(data=data)
+
+        self.assertEqual(place.name, data['name'])
+        self.assertEqual(place.ip_address, data['ip_address'])
         self.assertEqual(place.port, data['port'])
+        self.assertEqual(place.users.count(), 2)
         self.assertEqual(Place.objects.count(), 1)
 
 
@@ -55,12 +75,23 @@ class TestUpdatePlace(TestCase):
         self.assertEqual(place.port, data['port'])
         self.assertEqual(Place.objects.count(), 1)
 
-    def test_update_empty_place(self):
+    def test_update_place_with_users(self):
         """
-        Update a place with no parameters with update_place service
+        Update place with update_place service
         """
-        place = update_place(place=self.place, data={})
-        self.assertEqual(place.name, self.place.name)
-        self.assertEqual(place.ip_address, self.place.ip_address)
-        self.assertEqual(place.port, self.place.port)
+        user = UserFactory()
+        data = {
+            'name': 'Carl',
+            'ip_address': '127.16.0.0',
+            'port': '3',
+            'users': [user.id]
+        }
+
+        place = update_place(place=self.place, data=data)
+        self.assertEqual(place.name, data['name'])
+        self.assertEqual(place.ip_address, data['ip_address'])
+        self.assertEqual(place.port, data['port'])
         self.assertEqual(Place.objects.count(), 1)
+
+        for user in place.users.all():
+            self.assertTrue(user.id in data['users'])
