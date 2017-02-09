@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from authentication.factories import UserFactory, SuperUserFactory
+from authentication.factories import SuperUserFactory
 from plants.factories import PlantFactory
 from plants.models import Plant
 
