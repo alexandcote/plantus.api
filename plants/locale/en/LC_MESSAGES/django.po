@@ -17,10 +17,22 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: plantus/settings/settings_share.py:162
-msgid "French"
+#: plants/models.py:7
+msgid "Name"
 msgstr ""
 
-#: plantus/settings/settings_share.py:163
-msgid "English"
+#: plants/models.py:9
+msgid "Description"
+msgstr ""
+
+#: plants/models.py:11
+msgid "Humidity spec"
+msgstr ""
+
+#: plants/models.py:13
+msgid "Luminosity spec"
+msgstr ""
+
+#: plants/models.py:15
+msgid "Temperature spec"
 msgstr ""

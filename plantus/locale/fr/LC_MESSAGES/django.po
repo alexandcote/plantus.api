@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-07 16:58-0500\n"
+"POT-Creation-Date: 2017-02-09 15:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,10 +18,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: plantus/settings/settings_share.py:161
+#: plantus/settings/settings_share.py:162
 msgid "French"
 msgstr "Français"
 
-#: plantus/settings/settings_share.py:162
+#: plantus/settings/settings_share.py:163
 msgid "English"
 msgstr "Anglais"

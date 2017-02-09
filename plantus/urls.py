@@ -11,11 +11,13 @@ from authentication.views import UserViewSet
 from places.views import (
     PlaceViewSet,
 )
+from plants.views import PlantViewSet
 from plantus.views import WelcomeView
 
 router = SimpleRouter()
 router.register(r'users', UserViewSet)
 router.register(r'places', PlaceViewSet)
+router.register(r'plants', PlantViewSet)
 
 urlpatterns = [
     url(r'^$', WelcomeView.as_view(), name='welcome'),

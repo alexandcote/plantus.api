@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'rest_framework',
     'authentication',
-    'places'
+    'places',
+    'plants'
 ]
 
 AUTH_USER_MODEL = 'authentication.user'
