@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 from rest_framework.reverse import reverse
 from rest_framework import status
 
-from authentication.factories import SuperUserFactory
+from authentication.factories import SuperUserFactory, UserFactory
 from plants.factories import PlantFactory
 from plants.models import Plant
 
@@ -12,12 +12,31 @@ class TestsPlantCreate(APITestCase):
 
     def setUp(self):
         self.plant = PlantFactory()
+        self.user = SuperUserFactory()
 
-    def test_plant_create(self):
+    def test_plant_create_normal_user(self):
         """
-        Ensure that we could create a plant
+        Ensure that we couldn't create a plant
         """
         url = reverse('plant-list')
+        data = {
+            'name': 'Rose',
+            'description': 'Description de la rose',
+            'humidity_spec': '45.2',
+            'luminosity_spec': '12.32',
+            'temperature_spec': '1.3'
+        }
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_plant_create_super_user(self):
+        """
+        Ensure super user can create a plant
+        """
+        url = reverse('plant-list')
+        self.client.force_authenticate(user=self.user)
+
         data = {
             'name': 'Rose',
             'description': 'Description de la rose',
@@ -39,9 +58,11 @@ class TestsPlantCreate(APITestCase):
 
     def test_empty_plant(self):
         """
-        Ensure that we cant't create an empty plant
+        Ensure superuser can't create an empty plant
         """
         url = reverse('plant-list')
+        self.client.force_authenticate(user=self.user)
+
         data = {
             'name': '',
             'description': '',
@@ -58,7 +79,7 @@ class TestsPlantList(APITestCase):
     def setUp(self):
         self.plant = PlantFactory()
 
-    def test_users_list(self):
+    def test_plant_list(self):
         """
         Ensure that user can list all plants
         """
@@ -74,6 +95,9 @@ class TestsPlantRetrieve(APITestCase):
         self.plant = PlantFactory()
 
     def test_plant_retrieve(self):
+        """
+        Ensure that user can retrieve plants by id
+        """
         url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
         response = self.client.get(url, format='json')
 
@@ -84,14 +108,27 @@ class TestsPlantUpdate(APITestCase):
 
     def setUp(self):
         self.plant = PlantFactory()
-        self.user = SuperUserFactory()
+        self.user = UserFactory()
+        self.superuser = SuperUserFactory()
 
     def test_plant_partial_update(self):
         """
-         Ensure that the plant information are correctly updated
-         """
+        Ensure that the plant information are not updated for normal user
+        """
         url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
         self.client.force_authenticate(user=self.user)
+
+        data = {"name": "Rose", "description": "Une belle rose"}
+        response = self.client.patch(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_plant_partial_update_super(self):
+        """
+        Ensure that the plant information are correctly updated(SuperUser)
+        """
+        url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
+        self.client.force_authenticate(user=self.superuser)
 
         data = {"name": "Rose", "description": "Une belle rose"}
         response = self.client.patch(url, data=data)
@@ -118,6 +155,24 @@ class TestsPlantUpdate(APITestCase):
             'temperature_spec': '10.3'
         }
         response = self.client.put(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_plant_full_update_super(self):
+        """
+        Ensure that the user information are correctly updated with put(
+        SuperUser)
+        """
+        url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
+        self.client.force_authenticate(user=self.superuser)
+
+        data = {
+            'name': 'Lila',
+            'description': 'Description de la lila',
+            'humidity_spec': '30.2',
+            'luminosity_spec': '52.25',
+            'temperature_spec': '10.3'
+        }
+        response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         plant = Plant.objects.get(pk=self.plant.pk)
@@ -134,12 +189,25 @@ class TestPlantsDelete(APITestCase):
 
     def setUp(self):
         self.plant = PlantFactory()
+        self.user = UserFactory()
+        self.superuser = SuperUserFactory()
 
-    def test_current_users_delete(self):
+    def test_plant_delete_normal_users(self):
         """
         Ensure that user can't delete a plant
         """
         url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
+        self.client.force_authenticate(user=self.user)
         response = self.client.delete(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_plant_delete_super_users(self):
+        """
+        Ensure that user can't delete a plant
+        """
+        url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
+        self.client.force_authenticate(user=self.superuser)
+        response = self.client.delete(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
