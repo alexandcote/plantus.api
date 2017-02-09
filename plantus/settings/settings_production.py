@@ -12,3 +12,6 @@ def configure(settings):
     settings.CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'
     settings.CELERY_TASK_ALWAYS_EAGER = False
     settings.CELERY_RESULT_BACKEND = 'django-db'
+
+    # CORS configuration
+    settings.CORS_ORIGIN_WHITELIST = ('plantus.xyz',)
