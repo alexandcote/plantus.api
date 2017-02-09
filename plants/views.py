@@ -1,4 +1,5 @@
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import SearchFilter
 
 from plants.models import Plant
 from plants.permissions import PlantPermission
@@ -12,3 +13,5 @@ class PlantViewSet(ModelViewSet):
     queryset = Plant.objects.filter()
     permission_classes = [PlantPermission]
     serializer_class = PlantSerializer
+    filter_backends = (SearchFilter,)
+    search_fields = ['name', 'description']
