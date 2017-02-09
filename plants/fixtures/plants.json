@@ -1,0 +1,35 @@
+[
+    {
+        "model": "plants.plant",
+        "pk": 1,
+        "fields": {
+            "name": "Plant #1",
+            "description": "127.0.0.1",
+            "humidity_spec": "10",
+            "luminosity_spec": "10",
+            "temperature_spec": "10"
+        }
+    },
+    {
+        "model": "plants.plant",
+        "pk": 2,
+        "fields": {
+            "name": "Plant #2",
+            "description": "127.0.0.1",
+            "humidity_spec": "20",
+            "luminosity_spec": "20",
+            "temperature_spec": "20"
+        }
+    },
+    {
+        "model": "plants.plant",
+        "pk": 3,
+        "fields": {
+            "name": "Plant #3",
+            "description": "127.0.0.1",
+            "humidity_spec": "30",
+            "luminosity_spec": "30",
+            "temperature_spec": "30"
+        }
+    }
+]

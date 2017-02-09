@@ -52,7 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text=_('When the user was created.'), auto_now_add=True)
 
     updated_at = models.DateTimeField(
-        help_text=_('When the user was created.'), auto_now=True)
+        help_text=_('When the user was updated.'), auto_now=True)
 
     objects = UserManager()
 

@@ -30,3 +30,8 @@ class UserFactory(DjangoModelFactory):
             # A list of groups were passed in, use them
             for place in extracted:
                 self.places.add(place)
+
+
+class SuperUserFactory(UserFactory):
+    is_superuser = True
+    is_staff = True

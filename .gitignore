@@ -90,5 +90,5 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# Paw endpoints
-*.paw
+# IDE
+.idea

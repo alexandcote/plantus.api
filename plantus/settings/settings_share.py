@@ -9,9 +9,10 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+import datetime
 import os
 import sys
+from django.utils.translation import ugettext_lazy as _
 
 from plantus.dotenv_loader import load_dotenv_file
 load_dotenv_file()
@@ -47,14 +48,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
+    'django_celery_beat',
     'rest_framework',
+    'corsheaders',
     'authentication',
-    'places'
+    'places',
+    'plants'
 ]
 
 AUTH_USER_MODEL = 'authentication.user'
 
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(weeks=52),
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 REST_FRAMEWORK = {
@@ -115,6 +126,16 @@ DATABASES = {
     }
 }
 
+# Celery configuration
+CELERY_BROKER_URL = "memory://"
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'America/Montreal'
+CELERY_ENABLE_UTC = True
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -138,7 +159,16 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
+
+LANGUAGES = [
+    ('fr', _('French')),
+    ('en', _('English')),
+]
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 TIME_ZONE = 'UTC'
 
@@ -151,7 +181,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
-
 STATIC_URL = '/static/'
 
 try:
@@ -160,7 +189,7 @@ try:
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
     else:
-        from loyalty.settings.setting_production import configure
+        from plantus.settings.settings_production import configure
     current_module = sys.modules[__name__]
     configure(current_module)
 except ImportError:
