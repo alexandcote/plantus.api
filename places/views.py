@@ -10,26 +10,42 @@ from places.serializers import PlaceSerializer
 
 class PlaceViewSet(ModelViewSet):
     """
-    A simple ViewSet for viewing and editing accounts.
+    A simple ViewSet for viewing and editing places.
     """
     queryset = Place.objects.filter()
     permission_classes = [PlacesPermission]
     serializer_class = PlaceSerializer
+    page_size = 3
 
     def list(self, request, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
 
-        if request.user.is_superuser:
-            queryset = Place.objects.all()
-        else:
-            queryset = Place.objects.filter(users=request.user)
+        if not request.user.is_superuser:
+            queryset = queryset.filter(users=request.user)
 
-        serializer = PlaceSerializer(
-            queryset, context={'request': request}, many=True)
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+
         return Response(serializer.data)
 
     @detail_route()
     def users(self, request, pk=None):
         place = self.get_object()
-        serializer = UserSerializer(place.users.all(), context={
+        queryset = place.users.all()
+
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = UserSerializer(page, context={
+                'request': request}, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = UserSerializer(queryset, context={
             'request': request}, many=True)
+
         return Response(serializer.data)

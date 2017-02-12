@@ -16,3 +16,9 @@ class Plant(models.Model):
     temperature_spec = models.DecimalField(
         blank=False, null=False, verbose_name=_('Temperature spec'),
         max_digits=4, decimal_places=2)
+
+    def __str__(self):
+        """
+        Display the plant object
+        """
+        return self.name

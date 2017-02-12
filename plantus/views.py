@@ -17,6 +17,7 @@ class WelcomeView(APIView):
         """
         return Response({
             'places': reverse('place-list', request=request, format=format),
-            'users': reverse('user-list', request=request, format=format),
             'plants': reverse('plant-list', request=request, format=format),
+            'pots': reverse('pot-list', request=request, format=format),
+            'users': reverse('user-list', request=request, format=format),
         })

@@ -87,6 +87,19 @@ class TestsPlantList(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.plant.id)
+        self.assertEqual(result[0]['name'], self.plant.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant.temperature_spec)
 
 
 class TestsPlantRetrieve(APITestCase):
@@ -225,8 +238,20 @@ class TestsPlantSearch(APITestCase):
         url = reverse('plant-list')
         url += "?search={search}".format(search=self.plant.name)
         response = self.client.get(url, format='json')
-        result = response.data
-        self.assertEqual(result['count'], 1)
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+
+        self.assertEqual(result[0]['id'], self.plant.id)
+        self.assertEqual(result[0]['name'], self.plant.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant.temperature_spec)
 
     def test_plant_search_by_desc(self):
         """
@@ -235,8 +260,19 @@ class TestsPlantSearch(APITestCase):
         url = reverse('plant-list')
         url += "?search={search}".format(search=self.plant2.description)
         response = self.client.get(url, format='json')
-        result = response.data
-        self.assertEqual(result['count'], 1)
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.plant2.id)
+        self.assertEqual(result[0]['name'], self.plant2.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant2.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant2.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant2.temperature_spec)
 
     def test_plant_search_all(self):
         """

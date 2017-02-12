@@ -87,7 +87,8 @@ class TestPlacesList(APITestCase):
 
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = response.data
+        result = response.data.get('results', [])
+
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['id'], self.place1.id)
         self.assertEqual(result[0]['name'], self.place1.name)

@@ -19,8 +19,17 @@ class UserViewSet(ModelViewSet):
     @detail_route()
     def places(self, request, pk=None):
         user = self.get_object()
-        serializer = PlaceSerializer(user.places.all(), context={
+        queryset = user.places.all()
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = PlaceSerializer(page, context={
+                'request': request}, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = PlaceSerializer(queryset, context={
             'request': request}, many=True)
+
         return Response(serializer.data)
 
     @list_route()
