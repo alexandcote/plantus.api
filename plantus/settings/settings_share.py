@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
     'places',
-    'plants'
+    'plants',
+    'pots'
 ]
 
 AUTH_USER_MODEL = 'authentication.user'

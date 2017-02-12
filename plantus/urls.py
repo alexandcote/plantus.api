@@ -13,11 +13,13 @@ from places.views import (
 )
 from plants.views import PlantViewSet
 from plantus.views import WelcomeView
+from pots.views import PotViewSet
 
 router = SimpleRouter()
 router.register(r'users', UserViewSet)
 router.register(r'places', PlaceViewSet)
 router.register(r'plants', PlantViewSet)
+router.register(r'pots', PotViewSet)
 
 urlpatterns = [
     url(r'^$', WelcomeView.as_view(), name='welcome'),
