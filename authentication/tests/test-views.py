@@ -42,7 +42,8 @@ class TestsUsersList(APITestCase):
         url = reverse('user-list')
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # TODO: Complete this test to list only friends
 
 
 class TestsUsersRetrieve(APITestCase):
@@ -77,7 +78,7 @@ class TestsUsersRetrieve(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestsUsersUpdate(APITestCase):
@@ -112,7 +113,7 @@ class TestsUsersUpdate(APITestCase):
         data = {'first_name': 'Wayne', 'last_name': 'Gretzky'}
         response = self.client.patch(url, data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         user = User.objects.get(pk=self.user.pk)
         self.assertNotEqual(user.first_name, data['first_name'])
         self.assertNotEqual(user.last_name, data['last_name'])
@@ -154,7 +155,7 @@ class TestsUsersUpdate(APITestCase):
             'password': 'not_valide'
         }
         response = self.client.put(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
         user = User.objects.get(pk=self.user.pk)
         self.assertNotEqual(user.first_name, data['first_name'])
@@ -169,16 +170,6 @@ class TestsUsersDelete(APITestCase):
         self.user = UserFactory()
         self.user2 = UserFactory()
 
-    def test_current_users_delete(self):
-        """
-        Ensure that user can't delete it self with the /users/<id> endpoint
-        """
-        url = reverse('user-detail', kwargs={'pk': self.user.pk})
-        self.client.force_authenticate(user=self.user)
-        response = self.client.delete(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
     def test_other_users_delete(self):
         """
         Ensure that user can't delete other users with the /users/<id> endpoint
@@ -187,7 +178,7 @@ class TestsUsersDelete(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.delete(url, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestUsersCustomEndpoints(APITestCase):
