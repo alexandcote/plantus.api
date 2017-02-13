@@ -83,7 +83,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
@@ -192,6 +191,8 @@ try:
         from plantus.settings.settings_development import configure
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
+    elif PLANTUS_ENV == 'staging':
+        from plantus.settings.settings_staging import configure
     else:
         from plantus.settings.settings_production import configure
     current_module = sys.modules[__name__]
