@@ -51,7 +51,8 @@ class TestsPlaceCreate(APITestCase):
         self.assertEquals(place.name, data['name'])
         self.assertEquals(place.ip_address, data['ip_address'])
         self.assertEquals(place.port, data['port'])
-        self.assertEqual(place.users.count(), 0)
+        self.assertEqual(place.users.count(), 1)
+        self.assertEqual(place.users.first().id, self.user.id)
 
     def test_place_create_empty(self):
         """
@@ -170,7 +171,7 @@ class TestUpdatePlaces(APITestCase):
         self.client.force_authenticate(user=self.user2)
         response = self.client.put(url, data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestDeletePlaces(APITestCase):
@@ -199,7 +200,7 @@ class TestDeletePlaces(APITestCase):
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestRetrievePlaces(APITestCase):
@@ -233,4 +234,4 @@ class TestRetrievePlaces(APITestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
