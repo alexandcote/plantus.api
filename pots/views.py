@@ -13,20 +13,13 @@ class PotViewSet(ModelViewSet):
     queryset = Pot.objects.all()
     permission_classes = [PotsPermission]
     serializer_class = PotSerializer
+    filter_fields = ('place', 'place__users',)
 
-    def list(self, request, **kwargs):
+    def get_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
 
-        queryset = self.filter_queryset(self.get_queryset())
+        if not user.is_superuser:
+            queryset = queryset.filter(place__users=user)
 
-        if not request.user.is_superuser:
-            queryset = queryset.filter(place__users=request.user)
-
-        page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-
-        return Response(serializer.data)
+        return queryset
