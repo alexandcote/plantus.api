@@ -12,7 +12,7 @@ class PlaceViewSet(ModelViewSet):
     """
     A simple ViewSet for viewing and editing places.
     """
-    queryset = Place.objects.filter()
+    queryset = Place.objects.prefetch_related('users').all()
     permission_classes = [PlacesPermission]
     serializer_class = PlaceSerializer
     page_size = 3
@@ -36,7 +36,7 @@ class PlaceViewSet(ModelViewSet):
     @detail_route()
     def users(self, request, pk=None):
         place = self.get_object()
-        queryset = place.users.all()
+        queryset = place.users.prefetch_related('places').all()
 
         page = self.paginate_queryset(queryset)
 
