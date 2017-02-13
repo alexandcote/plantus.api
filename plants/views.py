@@ -1,5 +1,6 @@
-from rest_framework.viewsets import ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
+from rest_framework.viewsets import ModelViewSet
 
 from plants.models import Plant
 from plants.permissions import PlantPermission
@@ -13,5 +14,6 @@ class PlantViewSet(ModelViewSet):
     queryset = Plant.objects.filter()
     permission_classes = [PlantPermission]
     serializer_class = PlantSerializer
-    filter_backends = (SearchFilter,)
-    search_fields = ['name', 'description']
+    filter_backends = (DjangoFilterBackend, SearchFilter,)
+    search_fields = ('name', 'description',)
+    filter_fields = ('pots',)
