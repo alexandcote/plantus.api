@@ -14,6 +14,5 @@ class PlantViewSet(ModelViewSet):
     queryset = Plant.objects.filter()
     permission_classes = [PlantPermission]
     serializer_class = PlantSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter,)
+    filter_backends = (SearchFilter,)
     search_fields = ('name', 'description',)
-    filter_fields = ('pots',)
