@@ -235,3 +235,37 @@ class TestRetrievePlaces(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestSearchPlace(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.user2 = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.place2 = PlaceFactory(users=(self.user2,))
+
+    def test_place_search_by_user(self):
+        """
+        Ensure you can search a place by user
+        """
+        url = reverse('place-list')
+        url += "?users={search}".format(search=self.user.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.place.id)
+        self.assertEqual(result[0]['name'], self.place.name)
+
+    def test_place_search_by_other_user(self):
+        """
+        Ensure you can't search a place from an other user
+        """
+        url = reverse('place-list')
+        url += "?users={search}".format(search=self.user2.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 0)
