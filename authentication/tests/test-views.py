@@ -308,37 +308,3 @@ class TestUserToken(APITestCase):
         result = response.data
         token = result.get('token', None)
         self.assertEqual(token, None)
-
-
-class TestUsersSearch(APITestCase):
-    def setUp(self):
-        self.user = UserFactory()
-        self.user2 = UserFactory()
-        self.place = PlaceFactory(users=(self.user,))
-        self.place2 = PlaceFactory(users=(self.user2,))
-
-    def test_user_search_by_place(self):
-        """
-        Ensure you can search a user by place
-        """
-        url = reverse('user-list')
-        url += "?places={search}".format(search=self.place.id)
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(url, format='json')
-        result = response.data.get('results', [])
-
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['id'], self.user.id)
-        self.assertEqual(result[0]['first_name'], self.user.first_name)
-
-    def test_user_search_by_unavailable_place(self):
-        """
-        Ensure you can't search a user by an other place
-        """
-        url = reverse('user-list')
-        url += "?places={search}".format(search=self.place2.id)
-        self.client.force_authenticate(user=self.user)
-        response = self.client.get(url, format='json')
-        result = response.data.get('results', [])
-
-        self.assertEqual(len(result), 0)
