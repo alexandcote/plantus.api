@@ -2,11 +2,14 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import DjangoFilterBackend
 
 from pots.models import Pot, TimeSerie
 from pots.permissions import PotsPermission, TimeSeriesPermission
 from pots.serializers import PotSerializer, TimeSeriesSerializer
 from pots.services import service_to_water_pot
+
+from plantus.filter import DateFilter
 
 
 class PotViewSet(ModelViewSet):
@@ -17,6 +20,7 @@ class PotViewSet(ModelViewSet):
     permission_classes = [PotsPermission]
     serializer_class = PotSerializer
     filter_fields = ('place', 'place__users',)
+
 
     def get_queryset(self):
         queryset = self.queryset
@@ -42,6 +46,7 @@ class TimeSeriesViewSet(ModelViewSet):
     permission_classes = [TimeSeriesPermission]
     serializer_class = TimeSeriesSerializer
     filter_fields = ('pot', 'pot__place',)
+    filter_backends = (DjangoFilterBackend, DateFilter,)
 
     def get_queryset(self):
         queryset = self.queryset
