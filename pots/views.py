@@ -1,10 +1,14 @@
+from django.db.models import Prefetch
 from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import DjangoFilterBackend
 
-from pots.models import Pot, TimeSerie
+from pots.models import (
+    Pot,
+    TimeSerie
+)
 from pots.permissions import PotsPermission, TimeSeriesPermission
 from pots.serializers import PotSerializer, TimeSeriesSerializer
 from pots.services import service_to_water_pot
@@ -16,7 +20,13 @@ class PotViewSet(ModelViewSet):
     """
     A simple ViewSet for viewing and editing pots.
     """
-    queryset = Pot.objects.all()
+    queryset = Pot.objects.all().prefetch_related(
+        Prefetch(
+            'timeseries',
+            queryset=TimeSerie.objects.order_by('-id'),
+            to_attr="current_spec"
+        )
+    )
     permission_classes = [PotsPermission]
     serializer_class = PotSerializer
     filter_fields = ('place', 'place__users',)

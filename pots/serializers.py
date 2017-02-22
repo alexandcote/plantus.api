@@ -1,3 +1,4 @@
+from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from places.models import Place
@@ -9,19 +10,16 @@ class TimeSeriesSerializer(ModelSerializer):
     class Meta:
         model = TimeSerie
         fields = (
-            'id',
             'date',
             'temperature',
             'humidity',
             'luminosity',
-            'water_level',
-            'url'
+            'water_level'
         )
 
 
 class PotSerializer(ModelSerializer):
-    time_series = TimeSeriesSerializer(source="last_timeseries",
-                                       read_only=True)
+    spec = SerializerMethodField()
 
     class Meta:
         model = Pot
@@ -30,9 +28,14 @@ class PotSerializer(ModelSerializer):
             'name',
             'place',
             'plant',
-            'time_series',
+            'spec',
             'url',
         )
+
+    def get_spec(self, obj):
+        if len(obj.current_spec) > 0:
+            return TimeSeriesSerializer(obj.current_spec[0]).data
+        return None
 
     def get_fields(self):
         fields = super(PotSerializer, self).get_fields()
