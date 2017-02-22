@@ -21,9 +21,8 @@ class TestsPotWater(APITestCase):
     @mock.patch('pots.views.service_to_water_pot')
     def test_water_a_pot(self, mock_service_to_water_pot):
         url = reverse('pot-water', kwargs={"pk": self.pot.pk})
-        data = {}
         self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data=data)
+        response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         mock_service_to_water_pot.assert_called_once_with(self.pot)
 
