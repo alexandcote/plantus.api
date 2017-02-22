@@ -1,6 +1,8 @@
-from factory import DjangoModelFactory
-from factory import Sequence
-from factory import SubFactory
+from factory import (
+    DjangoModelFactory,
+    Sequence,
+    SubFactory
+)
 
 from places.factories import PlaceFactory
 from plants.factories import PlantFactory
