@@ -1,0 +1,74 @@
+[
+    {
+        "model": "pots.timeserie",
+        "pk": 1,
+        "fields": {
+            "pot": 1,
+            "date": "2017-01-01 17:00:00.000000+00:00",
+            "temperature": "10.00",
+            "humidity": "10.00",
+            "luminosity": "10.00",
+            "water_level": "10.00"
+        }
+    },
+    {
+        "model": "pots.timeserie",
+        "pk": 2,
+        "fields": {
+            "pot": 2,
+            "date": "2017-01-01 17:00:00.000000+00:00",
+            "temperature": "10.00",
+            "humidity": "10.00",
+            "luminosity": "10.00",
+            "water_level": "10.00"
+        }
+    },
+    {
+        "model": "pots.timeserie",
+        "pk": 3,
+        "fields": {
+            "pot": 1,
+            "date": "2017-01-01 18:00:00.000000+00:00",
+            "temperature": "11.00",
+            "humidity": "11.00",
+            "luminosity": "11.00",
+            "water_level": "11.00"
+        }
+    },
+    {
+        "model": "pots.timeserie",
+        "pk": 4,
+        "fields": {
+            "pot": 2,
+            "date": "2017-01-01 18:00:00.000000+00:00",
+            "temperature": "11.00",
+            "humidity": "11.00",
+            "luminosity": "11.00",
+            "water_level": "11.00"
+        }
+    },
+    {
+        "model": "pots.timeserie",
+        "pk": 5,
+        "fields": {
+            "pot": 1,
+            "date": "2017-01-01 19:00:00.000000+00:00",
+            "temperature": "12.00",
+            "humidity": "12.00",
+            "luminosity": "12.00",
+            "water_level": "12.00"
+        }
+    },
+    {
+        "model": "pots.timeserie",
+        "pk": 6,
+        "fields": {
+            "pot": 2,
+            "date": "2017-01-01 19:00:00.000000+00:00",
+            "temperature": "12.00",
+            "humidity": "12.00",
+            "luminosity": "12.00",
+            "water_level": "12.00"
+        }
+    }
+]
