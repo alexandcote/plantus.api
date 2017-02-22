@@ -9,7 +9,7 @@ from plants.factories import PlantFactory
 from pots.models import Pot
 
 
-class PotsFactory(DjangoModelFactory):
+class PotFactory(DjangoModelFactory):
     class Meta:
         model = Pot
 
