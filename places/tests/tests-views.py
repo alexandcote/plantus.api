@@ -1,3 +1,5 @@
+from unittest import mock
+
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -269,3 +271,17 @@ class TestSearchPlace(APITestCase):
         result = response.data.get('results', [])
 
         self.assertEqual(len(result), 0)
+
+
+class TestsPlaceWater(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.place = PlaceFactory(users=[self.user.id])
+
+    @mock.patch('places.views.service_to_water_all_pots')
+    def test_water_a_pot(self, mock_service_to_water_all_pots):
+        url = reverse('place-water', kwargs={"pk": self.place.pk})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        mock_service_to_water_all_pots.assert_called_once_with(self.place)

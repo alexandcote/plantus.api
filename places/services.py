@@ -38,6 +38,10 @@ def update_place(place, data):
 
 
 def service_to_water_all_pots(place):
+    """ 
+    Task to water pots in a place
+    TODO: Add tests when the function is completed 
+    """
     time = 5
     for pot in place.pots.all():
         task_to_water_pot.delay(pot.id, time)
