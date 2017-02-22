@@ -1,10 +1,27 @@
 from rest_framework.serializers import ModelSerializer
 
 from places.models import Place
-from pots.models import Pot
+from pots.models import Pot, TimeSerie
+
+
+class TimeSeriesSerializer(ModelSerializer):
+
+    class Meta:
+        model = TimeSerie
+        fields = (
+            'id',
+            'date',
+            'temperature',
+            'humidity',
+            'luminosity',
+            'water_level',
+            'url'
+        )
 
 
 class PotSerializer(ModelSerializer):
+    time_series = TimeSeriesSerializer(source="last_timeseries",
+                                       read_only=True)
 
     class Meta:
         model = Pot
@@ -13,6 +30,7 @@ class PotSerializer(ModelSerializer):
             'name',
             'place',
             'plant',
+            'time_series',
             'url',
         )
 

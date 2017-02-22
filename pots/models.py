@@ -19,6 +19,9 @@ class Pot(models.Model):
         """
         return self.name
 
+    def last_timeseries(self):
+        return self.timeseries.last()
+
 
 class TimeSerie(models.Model):
 

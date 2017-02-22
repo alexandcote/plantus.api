@@ -20,4 +20,6 @@ class WelcomeView(APIView):
             'plants': reverse('plant-list', request=request, format=format),
             'pots': reverse('pot-list', request=request, format=format),
             'users': reverse('user-list', request=request, format=format),
+            'timeseries': reverse('timeserie-list', request=request,
+                                  format=format),
         })
