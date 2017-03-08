@@ -1,9 +1,9 @@
 from django.db.models import Prefetch
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.filters import DjangoFilterBackend
 
 from pots.models import (
     Pot,
