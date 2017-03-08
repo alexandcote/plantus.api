@@ -89,7 +89,7 @@ class TestPlacesList(APITestCase):
         url = reverse('place-list')
 
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class TestUpdatePlaces(APITestCase):

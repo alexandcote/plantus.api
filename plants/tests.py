@@ -12,13 +12,32 @@ class TestsPlantCreate(APITestCase):
 
     def setUp(self):
         self.plant = PlantFactory()
+        self.user = UserFactory()
         self.superuser = SuperUserFactory()
+
+    def test_plant_create_unauthenticated_user(self):
+        """
+        Ensure that we couldn't create a plant if you are not authenticated
+        """
+        url = reverse('plant-list')
+        data = {
+            'name': 'Rose',
+            'description': 'Description de la rose',
+            'humidity_spec': '45.2',
+            'luminosity_spec': '12.32',
+            'temperature_spec': '1.3'
+        }
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_plant_create_normal_user(self):
         """
-        Ensure that we couldn't create a plant
+        Ensure that we couldn't create a plant if you are a normal user
         """
         url = reverse('plant-list')
+        self.client.force_authenticate(user=self.user)
+
         data = {
             'name': 'Rose',
             'description': 'Description de la rose',
