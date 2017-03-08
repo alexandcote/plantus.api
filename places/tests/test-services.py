@@ -14,24 +14,16 @@ class TestCreatePlace(TestCase):
         """
         place = create_place({})
         self.assertEqual(place.name, '')
-        self.assertEqual(place.ip_address, '0.0.0.0')
-        self.assertEqual(place.port, 0)
         self.assertEqual(Place.objects.count(), 1)
 
     def test_create_place(self):
         """
         Create a place with create_place service
         """
-        data = {
-            'name': 'Ismael',
-            'ip_address': '127.15.0.0',
-            'port': '9'
-        }
+        data = {'name': 'Ismael'}
         place = create_place(data=data)
 
         self.assertEqual(place.name, data['name'])
-        self.assertEqual(place.ip_address, data['ip_address'])
-        self.assertEqual(place.port, data['port'])
         self.assertEqual(Place.objects.count(), 1)
 
     def test_create_place_with_users(self):
@@ -42,15 +34,11 @@ class TestCreatePlace(TestCase):
         user2 = UserFactory()
         data = {
             'name': 'Ismael',
-            'ip_address': '127.15.0.0',
-            'port': '9',
             'users': [user.id, user2.id]
         }
         place = create_place(data=data)
 
         self.assertEqual(place.name, data['name'])
-        self.assertEqual(place.ip_address, data['ip_address'])
-        self.assertEqual(place.port, data['port'])
         self.assertEqual(place.users.count(), 2)
         self.assertEqual(Place.objects.count(), 1)
 
@@ -64,15 +52,9 @@ class TestUpdatePlace(TestCase):
         """
         Update place with update_place service
         """
-        data = {
-            'name': 'Carl',
-            'ip_address': '127.16.0.0',
-            'port': '3'
-        }
+        data = {'name': 'Carl'}
         place = update_place(place=self.place, data=data)
         self.assertEqual(place.name, data['name'])
-        self.assertEqual(place.ip_address, data['ip_address'])
-        self.assertEqual(place.port, data['port'])
         self.assertEqual(Place.objects.count(), 1)
 
     def test_update_place_with_users(self):
@@ -82,15 +64,11 @@ class TestUpdatePlace(TestCase):
         user = UserFactory()
         data = {
             'name': 'Carl',
-            'ip_address': '127.16.0.0',
-            'port': '3',
             'users': [user.id]
         }
 
         place = update_place(place=self.place, data=data)
         self.assertEqual(place.name, data['name'])
-        self.assertEqual(place.ip_address, data['ip_address'])
-        self.assertEqual(place.port, data['port'])
         self.assertEqual(Place.objects.count(), 1)
 
         for user in place.users.all():

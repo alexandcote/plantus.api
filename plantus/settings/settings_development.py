@@ -4,6 +4,7 @@ def configure(settings):
     settings.DEBUG = True
     settings.INSTALLED_APPS += (
         'debug_toolbar',
+        'django_extensions',
     )
     settings.MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
     settings.REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = (

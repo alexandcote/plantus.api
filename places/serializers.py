@@ -10,8 +10,6 @@ class PlaceSerializer(ModelSerializer):
         fields = (
             'id',
             'name',
-            'ip_address',
-            'port',
             'url',
             'users'
         )

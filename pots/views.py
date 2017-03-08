@@ -31,7 +31,6 @@ class PotViewSet(ModelViewSet):
     serializer_class = PotSerializer
     filter_fields = ('place', 'place__users',)
 
-
     def get_queryset(self):
         queryset = self.queryset
         user = self.request.user

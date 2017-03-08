@@ -21,8 +21,6 @@ class TestsPlaceCreate(APITestCase):
         url = reverse('place-list')
         data = {
             'name': 'Villa #8',
-            'ip_address': '192.168.1.7',
-            'port': 192,
             'users': [self.user.id],
         }
         self.client.force_authenticate(user=self.user)
@@ -31,8 +29,6 @@ class TestsPlaceCreate(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         place = Place.objects.get(name='Villa #8')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
         self.assertEqual(place.users.count(), 1)
 
     def test_place_create_with_no_users(self):
@@ -40,19 +36,13 @@ class TestsPlaceCreate(APITestCase):
         Ensure that we could create a place without a user
         """
         url = reverse('place-list')
-        data = {
-            'name': 'Villa #8',
-            'ip_address': '192.168.1.7',
-            'port': 192,
-        }
+        data = {'name': 'Villa #8'}
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         place = Place.objects.get(name='Villa #8')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
         self.assertEqual(place.users.count(), 1)
         self.assertEqual(place.users.first().id, self.user.id)
 
@@ -65,11 +55,7 @@ class TestsPlaceCreate(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
 
-        expected_error = {
-            'name': ['This field is required.'],
-            'ip_address': ['This field is required.'],
-            'port': ['This field is required.']
-        }
+        expected_error = {'name': ['This field is required.']}
         self.assertEqual(response.data, expected_error)
 
 
@@ -95,8 +81,6 @@ class TestPlacesList(APITestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['id'], self.place1.id)
         self.assertEqual(result[0]['name'], self.place1.name)
-        self.assertEqual(result[0]['ip_address'], self.place1.ip_address)
-        self.assertEqual(result[0]['port'], self.place1.port)
 
     def test_place_list_unauthenticated(self):
         """
@@ -122,8 +106,6 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'ip_address': '192.170.2.9',
-            'port': 1334,
             'users': [self.user.id],
         }
         self.client.force_authenticate(user=self.user)
@@ -132,8 +114,6 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
         self.assertEqual(place.users.count(), 1)
 
         # Without port should raise a Bad Request
@@ -166,8 +146,6 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'ip_address': '192.170.2.9',
-            'port': 1334,
             'users': [self.user2.id],
         }
         self.client.force_authenticate(user=self.user2)
@@ -223,8 +201,6 @@ class TestRetrievePlaces(APITestCase):
 
         result = response.data
         self.assertEquals(result['name'], self.place.name)
-        self.assertEquals(result['ip_address'], self.place.ip_address)
-        self.assertEquals(result['port'], self.place.port)
         self.assertTrue(self.user.id in result['users'])
 
     def test_retrieve_other_place(self):

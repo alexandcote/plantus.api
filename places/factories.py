@@ -3,7 +3,6 @@ from factory import (
     Sequence
 )
 from factory import post_generation
-from factory.fuzzy import FuzzyInteger
 
 from places.models import Place
 
@@ -13,8 +12,6 @@ class PlaceFactory(DjangoModelFactory):
         model = Place
 
     name = Sequence(lambda n: 'Villa #%d' % n)
-    ip_address = '127.0.0.1'
-    port = FuzzyInteger(0, 9999, 1)
 
     @post_generation
     def users(self, create, extracted, **kwargs):
