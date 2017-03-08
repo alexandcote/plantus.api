@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.decorators import detail_route
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import OrderingFilter
 
 from pots.models import (
     Pot,
@@ -53,7 +54,8 @@ class TimeSeriesViewSet(ModelViewSet):
     permission_classes = [TimeSeriesPermission]
     serializer_class = TimeSeriesSerializer
     filter_fields = ('pot', 'pot__place',)
-    filter_backends = (DjangoFilterBackend, DateFilter,)
+    filter_backends = (DjangoFilterBackend, DateFilter, OrderingFilter)
+    ordering_fields = ('date',)
 
     def get_queryset(self):
         queryset = self.queryset
