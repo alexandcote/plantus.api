@@ -43,7 +43,7 @@ class TestsPotCreate(APITestCase):
 
     def test_create_on_other_user_place(self):
         """
-        Ensure that we could create a pot
+        Ensure that we couldn't create a pot on a other user place
         """
         url = reverse('pot-list')
         data = {

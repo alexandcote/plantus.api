@@ -33,7 +33,7 @@ class PotSerializer(ModelSerializer):
         )
 
     def get_spec(self, obj):
-        if len(obj.current_spec) > 0:
+        if hasattr(obj, 'current_spec') and len(obj.current_spec) > 0:
             return TimeSeriesSerializer(obj.current_spec[0]).data
         return None
 

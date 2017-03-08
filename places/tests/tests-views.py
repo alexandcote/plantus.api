@@ -116,8 +116,8 @@ class TestUpdatePlaces(APITestCase):
         self.assertEquals(place.name, data['name'])
         self.assertEqual(place.users.count(), 1)
 
-        # Without port should raise a Bad Request
-        data.pop('port')
+        # Without name should raise a Bad Request
+        data.pop('name')
         response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -128,7 +128,6 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'port': 1334
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(url, data=data)
@@ -136,7 +135,6 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.port, data['port'])
         self.assertEqual(place.users.count(), 1)
 
     def test_update_other_place(self):
