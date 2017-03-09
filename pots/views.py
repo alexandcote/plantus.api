@@ -13,7 +13,7 @@ from pots.permissions import PotsPermission, TimeSeriesPermission
 from pots.serializers import PotSerializer, TimeSeriesSerializer
 from pots.services import service_to_water_pot
 
-from plantus.filter import DateFilter
+from plantus.filters import DateFilter
 
 
 class PotViewSet(ModelViewSet):
