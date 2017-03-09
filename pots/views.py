@@ -11,8 +11,6 @@ from pots.models import (
 )
 from pots.permissions import PotsPermission, TimeSeriesPermission
 from pots.serializers import PotSerializer, TimeSeriesSerializer
-from pots.services import service_to_water_pot
-
 from plantus.filters import DateFilter
 
 
@@ -39,12 +37,6 @@ class PotViewSet(ModelViewSet):
             queryset = queryset.filter(place__users=user)
 
         return queryset
-
-    @detail_route(methods=['post'])
-    def water(self, request, pk=None):
-        pot = self.get_object()
-        service_to_water_pot(pot)
-        return Response(status=HTTP_202_ACCEPTED)
 
 
 class TimeSeriesViewSet(ModelViewSet):

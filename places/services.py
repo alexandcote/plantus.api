@@ -1,6 +1,4 @@
 from places.models import Place
-from plantus.tasks import task_to_water_pot
-
 
 def create_place(data):
     """
@@ -31,13 +29,3 @@ def update_place(place, data):
     place.save()
 
     return place
-
-
-def service_to_water_all_pots(place):
-    """ 
-    Task to water pots in a place
-    TODO: Add tests when the function is completed 
-    """
-    time = 5
-    for pot in place.pots.all():
-        task_to_water_pot.delay(pot.id, time)
