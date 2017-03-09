@@ -2,7 +2,10 @@ from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
 from places.models import Place
-from pots.models import Pot, TimeSerie
+from pots.models import (
+    Pot,
+    TimeSerie
+)
 
 
 class TimeSeriesSerializer(ModelSerializer):
@@ -17,6 +20,8 @@ class TimeSeriesSerializer(ModelSerializer):
             'water_level',
             'pot'
         )
+
+        extra_kwargs = {'pot': {'write_only': True}}
 
     def get_fields(self):
         fields = super(TimeSeriesSerializer, self).get_fields()
@@ -44,7 +49,8 @@ class PotSerializer(ModelSerializer):
 
     def get_spec(self, obj):
         if hasattr(obj, 'current_spec') and len(obj.current_spec) > 0:
-            return TimeSeriesSerializer(obj.current_spec[0]).data
+            return TimeSeriesSerializer(obj.current_spec[0], context={
+                'request': self.context['request']}).data
         return None
 
     def get_fields(self):

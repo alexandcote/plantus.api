@@ -4,7 +4,8 @@
         "pk": 1,
         "fields": {
             "name": "Villa #1",
-            "users": [1,2,3,4,5,6]
+            "users": [1,2,3,4,5,6],
+            "identifier": "d13bd6b3-81d9-474c-b40b-a5924b9acacd"
         }
     },
     {
@@ -12,7 +13,8 @@
         "pk": 2,
         "fields": {
             "name": "Villa #2",
-            "users": [1,2,4,6]
+            "users": [1,2,4,6],
+            "identifier": "5f086bce-4649-4fbf-bb72-549985eaeb1c"
         }
     },
     {
@@ -20,7 +22,8 @@
         "pk": 3,
         "fields": {
             "name": "Villa #3",
-            "users": [1,3,5]
+            "users": [1,3,5],
+            "identifier": "b7be8dcb-f5e2-468b-86ee-dbeb0fdd88d4"
         }
     }
 ]
