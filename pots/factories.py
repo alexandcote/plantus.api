@@ -31,4 +31,3 @@ class TimeSerieFactory(DjangoModelFactory):
     humidity = FuzzyDecimal(0, 100, 2)
     luminosity = FuzzyDecimal(0, 100, 2)
     water_level = FuzzyDecimal(0, 100, 2)
-

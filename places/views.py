@@ -1,6 +1,3 @@
-from rest_framework.response import Response
-from rest_framework.decorators import detail_route
-from rest_framework.status import HTTP_202_ACCEPTED
 from rest_framework.viewsets import ModelViewSet
 
 from places.models import Place

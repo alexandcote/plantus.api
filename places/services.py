@@ -1,5 +1,6 @@
 from places.models import Place
 
+
 def create_place(data):
     """
     Create a place with parameters
