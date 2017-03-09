@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 from plantus.settings.settings_share import AUTH_USER_MODEL
@@ -8,7 +10,8 @@ class Place(models.Model):
     users = models.ManyToManyField(AUTH_USER_MODEL, related_name='places',
                                    blank=True)
     identifier = models.UUIDField(max_length=100, blank=False, null=False,
-                                  unique=True, editable=False)
+                                  unique=True, editable=False,
+                                  default=uuid.uuid4)
 
     def __str__(self):
         return self.name
