@@ -14,8 +14,18 @@ class TimeSeriesSerializer(ModelSerializer):
             'temperature',
             'humidity',
             'luminosity',
-            'water_level'
+            'water_level',
+            'pot'
         )
+
+    def get_fields(self):
+        fields = super(TimeSeriesSerializer, self).get_fields()
+        user = self.context['request'].user
+
+        if not user.is_superuser:
+            fields['pot'].queryset = Pot.objects.filter(place__users=user.id)
+
+        return fields
 
 
 class PotSerializer(ModelSerializer):

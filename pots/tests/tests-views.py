@@ -1,11 +1,21 @@
+from decimal import Decimal
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from authentication.factories import UserFactory
+from authentication.factories import (
+    UserFactory,
+    SuperUserFactory
+)
 from places.factories import PlaceFactory
 from plants.factories import PlantFactory
-from pots.models import Pot
+from pots.factories import (
+    PotFactory
+)
+from pots.models import (
+    Pot,
+    TimeSerie
+)
 
 
 class TestsPotCreate(APITestCase):
@@ -298,3 +308,37 @@ class TestSearchPot(APITestCase):
         result = response.data.get('results', [])
 
         self.assertEqual(len(result), 0)
+
+
+class TestsTimeSeries(APITestCase):
+    def setUp(self):
+        self.user = SuperUserFactory()
+        self.place = PlaceFactory(users=[self.user.id])
+        self.place2 = PlaceFactory()
+        self.pot = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+
+    def test_create_timeserie(self):
+        """
+        Ensure that we could create a timeserie
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot': self.pot.id,
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
+        self.client.force_authenticate(user=self.user)
+        self.assertEqual(TimeSerie.objects.count(), 0)
+
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        result = response.data
+        self.assertEquals(Decimal(result['temperature']), data['temperature'])
+        self.assertEquals(Decimal(result['humidity']), data['humidity'])
+        self.assertEquals(Decimal(result['luminosity']), data['luminosity'])
+        self.assertEquals(Decimal(result['water_level']), data['water_level'])
+        self.assertEqual(TimeSerie.objects.count(), 1)

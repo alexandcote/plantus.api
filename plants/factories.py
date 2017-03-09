@@ -16,6 +16,6 @@ class PlantFactory(DjangoModelFactory):
 
     name = Sequence(lambda n: 'Plant #%d' % n)
     description = FuzzyText(length=100)
-    humidity_spec = FuzzyDecimal(0, 100)
-    luminosity_spec = FuzzyDecimal(0, 100)
-    temperature_spec = FuzzyDecimal(0, 100)
+    humidity_spec = FuzzyDecimal(0, 100, 2)
+    luminosity_spec = FuzzyDecimal(0, 100, 2)
+    temperature_spec = FuzzyDecimal(0, 100, 2)
