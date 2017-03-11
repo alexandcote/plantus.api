@@ -10,8 +10,7 @@ class Place(models.Model):
     users = models.ManyToManyField(AUTH_USER_MODEL, related_name='places',
                                    blank=True)
     identifier = models.UUIDField(max_length=100, blank=False, null=False,
-                                  unique=True, editable=False,
-                                  default=uuid.uuid4)
+                                  unique=True, default=uuid.uuid4)
 
     def __str__(self):
         return self.name

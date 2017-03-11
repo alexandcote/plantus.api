@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -25,13 +27,30 @@ class TestsPlaceCreate(APITestCase):
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        place = Place.objects.get(name='Villa #8')
+        place = Place.objects.last()
         self.assertEquals(place.name, data['name'])
         self.assertEqual(place.users.count(), 1)
 
-    def test_place_create_with_no_users(self):
+    def test_place_create_with_identifier(self):
         """
-        Ensure that we could create a place without a user
+        Ensure that we could create a place with identifier
+        """
+        url = reverse('place-list')
+        data = {
+            'name': 'Villa #8',
+            'identifier': uuid.uuid4(),
+        }
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        place = Place.objects.last()
+        self.assertEquals(place.name, data['name'])
+        self.assertEqual(place.identifier, data['identifier'])
+
+    def test_place_create_with_no_users_and_no_identifier(self):
+        """
+        Ensure that we could create a place without a user and no identifier
         """
         url = reverse('place-list')
         data = {'name': 'Villa #8'}
@@ -39,8 +58,9 @@ class TestsPlaceCreate(APITestCase):
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        place = Place.objects.get(name='Villa #8')
+        place = Place.objects.last()
         self.assertEquals(place.name, data['name'])
+        self.assertNotEquals(place.identifier, None)
         self.assertEqual(place.users.count(), 1)
         self.assertEqual(place.users.first().id, self.user.id)
 

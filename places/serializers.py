@@ -10,9 +10,19 @@ class PlaceSerializer(ModelSerializer):
         fields = (
             'id',
             'name',
+            'identifier',
             'url',
             'users'
         )
+
+    def __init__(self, *args, **kwargs):
+        super(PlaceSerializer, self).__init__(*args, **kwargs)
+
+        # Can't update the identifier of a place.
+        view = self.context.get('view', None)
+        if view and hasattr(view, 'action') and \
+                view.action in ['update', 'partial_update']:
+            self.fields['identifier'].read_only = True
 
     def create(self, validated_data):
         """

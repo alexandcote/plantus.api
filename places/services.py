@@ -1,3 +1,5 @@
+import uuid
+
 from places.models import Place
 
 
@@ -6,9 +8,10 @@ def create_place(data):
     Create a place with parameters
     """
     name = data.get('name', '')
+    identifier = data.get('identifier', uuid.uuid4())
     users = data.get('users', None)
 
-    place = Place(name=name)
+    place = Place(name=name, identifier=identifier)
     place.save()
 
     if users:
