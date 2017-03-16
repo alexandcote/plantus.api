@@ -14,6 +14,7 @@ class PlaceSerializer(ModelSerializer):
             'url',
             'users'
         )
+        extra_kwargs = {'identifier': {'required': True}}
 
     def __init__(self, *args, **kwargs):
         super(PlaceSerializer, self).__init__(*args, **kwargs)

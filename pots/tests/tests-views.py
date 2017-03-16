@@ -318,9 +318,9 @@ class TestsTimeSeries(APITestCase):
         self.pot = PotFactory(place=self.place)
         self.pot2 = PotFactory(place=self.place2)
 
-    def test_create_timeserie(self):
+    def test_create_timeserie_anonymous(self):
         """
-        Ensure that we could create a timeserie
+        Ensure that we could create a timeseries with an anonymous user
         """
         url = reverse('timeserie-list')
         data = {
@@ -330,15 +330,61 @@ class TestsTimeSeries(APITestCase):
             'luminosity': Decimal('12'),
             'water_level': Decimal('13')
         }
-        self.client.force_authenticate(user=self.user)
-        self.assertEqual(TimeSerie.objects.count(), 0)
+
+        response = self.client.post(
+            url, data=data, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_timeserie_bad_identifier(self):
+        """
+        Ensure that we couldn't create a timeseries with a bad identifier
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot': self.pot.id,
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
+
+        response = self.client.post(
+            url, data=data, HTTP_X_AUTHORIZATION='potato')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_timeserie_without_pot_id(self):
+        """
+        Ensure that we couldn't create a timeseries without a pot id
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot': self.pot2.id,
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
+
+        response = self.client.post(
+            url, data=data, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_timeserie_anonymous_without_identifier(self):
+        """
+        Ensure that we could create a timeseries without an identifier
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot': self.pot.id,
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
 
         response = self.client.post(url, data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        result = response.data
-        self.assertEquals(Decimal(result['temperature']), data['temperature'])
-        self.assertEquals(Decimal(result['humidity']), data['humidity'])
-        self.assertEquals(Decimal(result['luminosity']), data['luminosity'])
-        self.assertEquals(Decimal(result['water_level']), data['water_level'])
-        self.assertEqual(TimeSerie.objects.count(), 1)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -22,6 +22,7 @@ class TestsPlaceCreate(APITestCase):
         data = {
             'name': 'Villa #8',
             'users': [self.user.id],
+            'identifier': uuid.uuid4()
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
@@ -48,22 +49,6 @@ class TestsPlaceCreate(APITestCase):
         self.assertEquals(place.name, data['name'])
         self.assertEqual(place.identifier, data['identifier'])
 
-    def test_place_create_with_no_users_and_no_identifier(self):
-        """
-        Ensure that we could create a place without a user and no identifier
-        """
-        url = reverse('place-list')
-        data = {'name': 'Villa #8'}
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post(url, data=data)
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        place = Place.objects.last()
-        self.assertEquals(place.name, data['name'])
-        self.assertNotEquals(place.identifier, None)
-        self.assertEqual(place.users.count(), 1)
-        self.assertEqual(place.users.first().id, self.user.id)
-
     def test_place_create_empty(self):
         """
         Ensure that we need parameters to create a place
@@ -73,7 +58,10 @@ class TestsPlaceCreate(APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
 
-        expected_error = {'name': ['This field is required.']}
+        expected_error = {
+            'name': ['This field is required.'],
+            'identifier': ['This field is required.']
+        }
         self.assertEqual(response.data, expected_error)
 
 
