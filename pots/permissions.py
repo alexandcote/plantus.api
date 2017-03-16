@@ -1,4 +1,8 @@
+import uuid
+
 from rest_framework import permissions
+
+from places.models import Place
 
 
 class PotsPermission(permissions.BasePermission):
@@ -12,12 +16,19 @@ class PotsPermission(permissions.BasePermission):
 
 class TimeSeriesPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if not request.user.is_authenticated():
-            return False
+        if view.action is'create':
+            identifier = request.META.get('HTTP_X_AUTHORIZATION', '')
 
-        if view.action in ['destroy', 'update', 'partial_update', 'create']:
+            try:
+                identifier = uuid.UUID(identifier)
+                return Place.objects.filter(identifier=identifier).exists()
+            except ValueError:
+                return False
+
+        elif view.action in ['destroy', 'update', 'partial_update']:
             return request.user.is_superuser
-
+        elif view.action in ['list', 'retrieve']:
+            return request.user.is_authenticated
         return True
 
     def has_object_permission(self, request, view, obj):

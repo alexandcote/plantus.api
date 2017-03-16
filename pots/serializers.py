@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework.fields import SerializerMethodField
 from rest_framework.serializers import ModelSerializer
 
@@ -27,7 +29,18 @@ class TimeSeriesSerializer(ModelSerializer):
         fields = super(TimeSeriesSerializer, self).get_fields()
         user = self.context['request'].user
 
-        if not user.is_superuser:
+        if user.is_anonymous:
+            identifier = self.context['request'].META.get(
+                'HTTP_X_AUTHORIZATION', '')
+
+            try:
+                identifier = uuid.UUID(identifier)
+                fields['pot'].queryset = Pot.objects.filter(
+                    place__identifier=identifier)
+            except ValueError:
+                pass
+
+        elif not user.is_superuser:
             fields['pot'].queryset = Pot.objects.filter(place__users=user.id)
 
         return fields
