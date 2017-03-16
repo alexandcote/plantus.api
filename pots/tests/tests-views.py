@@ -1,3 +1,4 @@
+import uuid
 from decimal import Decimal
 from rest_framework import status
 from rest_framework.reverse import reverse
@@ -33,6 +34,7 @@ class TestsPotCreate(APITestCase):
         url = reverse('pot-list')
         data = {
             'name': 'Pot #1',
+            'identifier': str(uuid.uuid4()),
             'place': self.place.id,
             'plant': self.plant.id,
         }
@@ -46,6 +48,7 @@ class TestsPotCreate(APITestCase):
         self.assertEquals(result['name'], data['name'])
         self.assertEquals(result['place'], data['place'])
         self.assertEquals(result['plant'], data['plant'])
+        self.assertEquals(result['identifier'], data['identifier'])
         self.assertEqual(Pot.objects.count(), 1)
 
     def test_create_on_other_user_place(self):
@@ -55,6 +58,7 @@ class TestsPotCreate(APITestCase):
         url = reverse('pot-list')
         data = {
             'name': 'Pot #1',
+            'identifier': str(uuid.uuid4()),
             'place': self.place2.id,
             'plant': self.plant.id,
         }
@@ -75,6 +79,7 @@ class TestsPotCreate(APITestCase):
 
         expected_error = {
             'name': ['This field is required.'],
+            'identifier': ['This field is required.'],
             'place': ['This field is required.'],
             'plant': ['This field is required.']
         }
@@ -324,7 +329,7 @@ class TestsTimeSeries(APITestCase):
         """
         url = reverse('timeserie-list')
         data = {
-            'pot': self.pot.id,
+            'pot_identifier': str(self.pot.identifier),
             'temperature': Decimal('10'),
             'humidity': Decimal('11'),
             'luminosity': Decimal('12'),
@@ -335,6 +340,14 @@ class TestsTimeSeries(APITestCase):
             url, data=data, HTTP_X_AUTHORIZATION=str(self.place.identifier))
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        result = response.data
+        self.assertEquals(Decimal(result['temperature']), data['temperature'])
+        self.assertEquals(Decimal(result['humidity']), data['humidity'])
+        self.assertEquals(Decimal(result['luminosity']), data['luminosity'])
+        self.assertEquals(Decimal(result['water_level']), data['water_level'])
+        self.assertEquals(Decimal(result['pot']), self.pot.id)
+        self.assertEqual(TimeSerie.objects.count(), 1)
 
     def test_create_timeserie_bad_identifier(self):
         """
@@ -354,13 +367,48 @@ class TestsTimeSeries(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def test_create_timeserie_without_pot_id(self):
+    def test_create_timeserie_without_pot_identifier(self):
         """
         Ensure that we couldn't create a timeseries without a pot id
         """
         url = reverse('timeserie-list')
         data = {
-            'pot': self.pot2.id,
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
+
+        response = self.client.post(
+            url, data=data, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_timeserie_without_invalid_pot_identifier(self):
+        """
+        Ensure that we couldn't create a timeseries without a pot id
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot_identifier': 'potato',
+            'temperature': Decimal('10'),
+            'humidity': Decimal('11'),
+            'luminosity': Decimal('12'),
+            'water_level': Decimal('13')
+        }
+
+        response = self.client.post(
+            url, data=data, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_timeserie_without_other_pot_identifier(self):
+        """
+        Ensure that we couldn't create a timeseries without a pot id
+        """
+        url = reverse('timeserie-list')
+        data = {
+            'pot_identifier': str(self.pot2.identifier),
             'temperature': Decimal('10'),
             'humidity': Decimal('11'),
             'luminosity': Decimal('12'),

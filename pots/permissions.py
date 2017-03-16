@@ -25,8 +25,6 @@ class TimeSeriesPermission(permissions.BasePermission):
             except ValueError:
                 return False
 
-        elif view.action in ['destroy', 'update', 'partial_update']:
-            return request.user.is_superuser
         elif view.action in ['list', 'retrieve']:
             return request.user.is_authenticated
         return True
