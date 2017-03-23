@@ -14,9 +14,9 @@ class Pot(models.Model):
                                   unique=True, default=uuid.uuid4,
                                   db_index=True)
     place = models.ForeignKey(Place, on_delete=models.CASCADE,
-                              blank=None, null=None, related_name='pots')
+                              blank=False, null=False, related_name='pots')
     plant = models.ForeignKey(Plant, on_delete=models.CASCADE,
-                              blank=None, null=None, related_name='pots')
+                              blank=False, null=False, related_name='pots')
 
     def __str__(self):
         """
@@ -27,8 +27,8 @@ class Pot(models.Model):
 
 class TimeSerie(models.Model):
 
-    pot = models.ForeignKey(Pot, on_delete=models.CASCADE, blank=None,
-                            null=None, related_name='timeseries')
+    pot = models.ForeignKey(Pot, on_delete=models.CASCADE, blank=False,
+                            null=False, related_name='timeseries')
     date = models.DateTimeField(auto_now_add=True, db_index=True)
     temperature = models.DecimalField(
         blank=False, null=False, verbose_name=_('Temperature'),
@@ -52,3 +52,23 @@ class TimeSerie(models.Model):
          Display the time serie object
         """
         return "{0} - {1}".format(self.pot, self.date)
+
+
+class Action(models.Model):
+    name = models.CharField(max_length=25, primary_key=True)
+    label = models.CharField(
+        max_length=250, verbose_name=_("Label"), default="")
+
+    def __str__(self):
+        return self.label
+
+
+class Operation(models.Model):
+    pot = models.ForeignKey(Pot, on_delete=models.CASCADE, blank=False,
+                            null=False, related_name='operations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    action = models.ForeignKey(Action)
+
+    def __str__(self):
+        return "{pot} - {action}".format(pot=self.pot.name, action=self.action)

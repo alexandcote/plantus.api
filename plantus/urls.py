@@ -16,8 +16,8 @@ from plantus.settings.settings_share import PLANTUS_ENV
 from plantus.views import WelcomeView
 from pots.views import (
     PotViewSet,
-    TimeSeriesViewSet
-)
+    TimeSeriesViewSet,
+    OperationsViewSet)
 
 router = SimpleRouter()
 router.register(r'users', UserViewSet)
@@ -25,6 +25,7 @@ router.register(r'places', PlaceViewSet)
 router.register(r'plants', PlantViewSet)
 router.register(r'pots', PotViewSet)
 router.register(r'timeseries', TimeSeriesViewSet)
+router.register(r'operations', OperationsViewSet)
 
 urlpatterns = [
     url(r'^$', WelcomeView.as_view(), name='welcome'),

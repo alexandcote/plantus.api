@@ -7,8 +7,8 @@ from rest_framework.serializers import ModelSerializer
 from places.models import Place
 from pots.models import (
     Pot,
-    TimeSerie
-)
+    TimeSerie,
+    Operation)
 
 
 class TimeSeriesSerializer(ModelSerializer):
@@ -66,7 +66,7 @@ class TimeSeriesSerializer(ModelSerializer):
         return TimeSerie.objects.create(**validated_data)
 
 
-class PotSerializer(ModelSerializer):
+class PotsSerializer(ModelSerializer):
     spec = SerializerMethodField()
 
     class Meta:
@@ -83,7 +83,7 @@ class PotSerializer(ModelSerializer):
         extra_kwargs = {'identifier': {'required': True}}
 
     def __init__(self, *args, **kwargs):
-        super(PotSerializer, self).__init__(*args, **kwargs)
+        super(PotsSerializer, self).__init__(*args, **kwargs)
 
         # Can't update the identifier of a place.
         view = self.context.get('view', None)
@@ -98,10 +98,59 @@ class PotSerializer(ModelSerializer):
         return None
 
     def get_fields(self):
-        fields = super(PotSerializer, self).get_fields()
+        fields = super(PotsSerializer, self).get_fields()
         user = self.context['request'].user
 
         if not user.is_superuser:
             fields['place'].queryset = Place.objects.filter(users=user.id)
+
+        return fields
+
+
+class OperationsSerializer(ModelSerializer):
+    pot_identifier = UUIDField(source='pot.identifier')
+
+    class Meta:
+        model = Operation
+        fields = (
+            'action',
+            'pot',
+            'url',
+            'pot_identifier',
+            'created_at',
+            'completed_at',
+        )
+        extra_kwargs = {'pot': {'required': False}}
+
+    def __init__(self, *args, **kwargs):
+        super(OperationsSerializer, self).__init__(*args, **kwargs)
+
+        user = self.context['request'].user
+
+        if user.is_anonymous:
+            self.fields['pot'].read_only = True
+        else:
+            self.fields['pot_identifier'].read_only = True
+
+    def get_fields(self):
+        fields = super(OperationsSerializer, self).get_fields()
+        user = self.context['request'].user
+
+        if user.is_anonymous:
+            identifier = self.context['request'].META.get(
+                'HTTP_X_AUTHORIZATION', '')
+
+            try:
+                identifier = uuid.UUID(identifier)
+                self.context['current_place'] = Place.objects.filter(
+                    identifier=identifier)
+
+                fields['pot'].queryset = Pot.objects.filter(
+                    place=self.context['current_place'])
+            except ValueError:
+                pass
+
+        elif not user.is_superuser:
+            fields['pot'].queryset = Pot.objects.filter(place__users=user.id)
 
         return fields

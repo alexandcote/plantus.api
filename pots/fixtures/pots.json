@@ -48,5 +48,15 @@
             "plant": 2,
             "identifier": "5a490fff-0692-4c9a-bd69-d156dc81d1ca"
         }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 6,
+        "fields": {
+            "name": "Pot Gretzky",
+            "place": 4,
+            "plant": 1,
+            "identifier": "28061815-9715-47cf-bcce-48599031e0ed"
+        }
     }
 ]

@@ -1,3 +1,4 @@
+import uuid
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
@@ -5,17 +6,17 @@ from rest_framework.filters import OrderingFilter
 
 from pots.models import (
     Pot,
-    TimeSerie
-)
+    TimeSerie,
+    Operation)
 from pots.permissions import (
     PotsPermission,
-    TimeSeriesPermission
-)
+    TimeSeriesPermission,
+    OperationsPermission)
 from pots.serializers import (
-    PotSerializer,
-    TimeSeriesSerializer
-)
-from plantus.filters import DateFilter
+    PotsSerializer,
+    TimeSeriesSerializer,
+    OperationsSerializer)
+from plantus.filters import DateFilter, CompletedFilter
 
 
 class PotViewSet(ModelViewSet):
@@ -30,7 +31,7 @@ class PotViewSet(ModelViewSet):
         )
     )
     permission_classes = [PotsPermission]
-    serializer_class = PotSerializer
+    serializer_class = PotsSerializer
     filter_fields = ('place', 'place__users',)
 
     def get_queryset(self):
@@ -59,6 +60,34 @@ class TimeSeriesViewSet(ModelViewSet):
         user = self.request.user
 
         if not user.is_superuser:
+            queryset = queryset.filter(pot__place__users=user)
+
+        return queryset
+
+
+class OperationsViewSet(ModelViewSet):
+    """
+    A simple ViewSet for viewing and editing time series.
+    """
+    queryset = Operation.objects.prefetch_related('pot', 'pot__place').all()
+    permission_classes = [OperationsPermission]
+    serializer_class = OperationsSerializer
+    filter_backends = (DjangoFilterBackend, CompletedFilter,)
+    filter_fields = ('pot', 'pot__place',)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
+
+        if user.is_anonymous:
+            identifier = self.request.META.get('HTTP_X_AUTHORIZATION', '')
+
+            try:
+                identifier = uuid.UUID(identifier)
+                queryset = queryset.filter(pot__place__identifier=identifier)
+            except ValueError:
+                pass
+        elif user.is_authenticated and not user.is_superuser:
             queryset = queryset.filter(pot__place__users=user)
 
         return queryset

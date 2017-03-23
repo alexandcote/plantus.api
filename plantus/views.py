@@ -22,4 +22,6 @@ class WelcomeView(APIView):
             'users': reverse('user-list', request=request, format=format),
             'timeseries': reverse('timeserie-list', request=request,
                                   format=format),
+            'operations': reverse('operation-list', request=request,
+                                  format=format),
         })
