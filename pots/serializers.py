@@ -1,14 +1,18 @@
 import uuid
 
 from rest_framework.exceptions import ValidationError
-from rest_framework.fields import SerializerMethodField, UUIDField
+from rest_framework.fields import (
+    SerializerMethodField,
+    UUIDField
+)
 from rest_framework.serializers import ModelSerializer
 
 from places.models import Place
 from pots.models import (
     Pot,
     TimeSerie,
-    Operation)
+    Operation
+)
 
 
 class TimeSeriesSerializer(ModelSerializer):
@@ -113,6 +117,7 @@ class OperationsSerializer(ModelSerializer):
     class Meta:
         model = Operation
         fields = (
+            'id',
             'action',
             'pot',
             'url',

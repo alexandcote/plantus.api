@@ -41,7 +41,7 @@ class OperationsPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if view.action is'create':
             return request.user.is_authenticated
-        elif view.action in ['destroy', 'update']:
+        elif view.action in ['destroy', 'update', 'partial_up']:
             return False
         elif view.action in ['list', 'retrieve']:
             identifier = request.META.get('HTTP_X_AUTHORIZATION', '')
@@ -50,7 +50,7 @@ class OperationsPermission(permissions.BasePermission):
                 return Place.objects.filter(identifier=identifier).exists()
             except ValueError:
                 return request.user.is_authenticated
-        elif view.action == 'partial_update':
+        elif view.action == 'completed':
             identifier = request.META.get('HTTP_X_AUTHORIZATION', '')
             try:
                 identifier = uuid.UUID(identifier)

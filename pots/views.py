@@ -1,6 +1,10 @@
 import uuid
+import datetime
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from rest_framework.status import HTTP_204_NO_CONTENT
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter
 
@@ -15,7 +19,8 @@ from pots.permissions import (
 from pots.serializers import (
     PotsSerializer,
     TimeSeriesSerializer,
-    OperationsSerializer)
+    OperationsSerializer
+)
 from plantus.filters import DateFilter, CompletedFilter
 
 
@@ -67,7 +72,7 @@ class TimeSeriesViewSet(ModelViewSet):
 
 class OperationsViewSet(ModelViewSet):
     """
-    A simple ViewSet for viewing and editing time series.
+    A simple ViewSet for viewing and editing operations.
     """
     queryset = Operation.objects.prefetch_related('pot', 'pot__place').all()
     permission_classes = [OperationsPermission]
@@ -91,3 +96,11 @@ class OperationsViewSet(ModelViewSet):
             queryset = queryset.filter(pot__place__users=user)
 
         return queryset
+
+    @detail_route(methods=['post'])
+    def completed(self, request, pk=None):
+        operation = self.get_object()
+        operation.completed_at = datetime.datetime.now()
+        operation.save()
+
+        return Response(status=HTTP_204_NO_CONTENT)
