@@ -159,3 +159,12 @@ class OperationsSerializer(ModelSerializer):
             fields['pot'].queryset = Pot.objects.filter(place__users=user.id)
 
         return fields
+
+    def validate(self, data):
+        pot = data['pot']
+        action = data['action']
+        if Operation.objects.filter(
+                pot=pot, action=action, completed_at__isnull=True).exists():
+            raise ValidationError("Action already exist for this pot")
+
+        return data
