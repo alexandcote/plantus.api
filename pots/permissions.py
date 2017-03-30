@@ -41,7 +41,7 @@ class OperationsPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if view.action is'create':
             return request.user.is_authenticated
-        elif view.action in ['destroy', 'update', 'partial_up']:
+        elif view.action in ['destroy', 'update', 'partial_update']:
             return False
         elif view.action in ['list', 'retrieve']:
             identifier = request.META.get('HTTP_X_AUTHORIZATION', '')
