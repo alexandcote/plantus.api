@@ -30,6 +30,7 @@ class TestsPlaceCreate(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         place = Place.objects.last()
         self.assertEquals(place.name, data['name'])
+        self.assertEquals(place.identifier, data['identifier'])
         self.assertEqual(place.users.count(), 1)
 
     def test_place_create_with_identifier(self):
@@ -63,6 +64,7 @@ class TestsPlaceCreate(APITestCase):
             'identifier': ['This field is required.']
         }
         self.assertEqual(response.data, expected_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestPlacesList(APITestCase):
@@ -113,6 +115,7 @@ class TestUpdatePlaces(APITestCase):
         data = {
             'name': 'Villa #10',
             'users': [self.user.id],
+            'identifier': uuid.uuid4()
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(url, data=data)
@@ -120,6 +123,8 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
+        self.assertNotEquals(place.identifier, data['identifier'])
+        self.assertEquals(place.identifier, place.identifier)
         self.assertEqual(place.users.count(), 1)
 
         # Without name should raise a Bad Request
@@ -141,6 +146,23 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
+        self.assertEqual(place.users.count(), 1)
+
+    def test_patch_place_identifier(self):
+        """
+        Ensure that a patch works
+        """
+        url = reverse('place-detail', kwargs={"pk": self.place.pk})
+        data = {
+            'identifier': uuid.uuid4(),
+        }
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        place = Place.objects.get(id=self.place.id)
+        self.assertNotEquals(place.identifier, data['identifier'])
+        self.assertEquals(place.identifier, self.place.identifier)
         self.assertEqual(place.users.count(), 1)
 
     def test_update_other_place(self):
