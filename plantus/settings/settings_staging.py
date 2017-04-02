@@ -6,7 +6,10 @@ def configure(settings):
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
     settings.ALLOWED_HOSTS = ['api.plantus.xyz']
-    settings.STATIC_ROOT = '/var/www/plantus.xyz/static/'
+    settings.STATIC_ROOT = '/var/www/api.plantus.xyz/static/'
+
+    settings.MEDIA_ROOT = '/var/www/api.plantus.xyz/media/'
+    settings.MEDIA_URL = 'https://media.plantus.xyz/'
 
     # Celery configuration
     settings.CELERY_BROKER_URL = 'amqp://guest:guest@localhost//'

@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.db.models import ImageField
 
 from places.models import Place
 from plants.models import Plant
@@ -9,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Pot(models.Model):
+    picture = ImageField(upload_to='pots', default='default/pot.jpg')
     name = models.CharField(max_length=255, blank=False, null=False)
     identifier = models.UUIDField(max_length=100, blank=False, null=False,
                                   unique=True, default=uuid.uuid4,

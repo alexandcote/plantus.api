@@ -79,6 +79,7 @@ class PotsSerializer(ModelSerializer):
         fields = (
             'id',
             'name',
+            'picture',
             'identifier',
             'place',
             'plant',

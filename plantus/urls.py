@@ -39,9 +39,14 @@ urlpatterns += i18n_patterns(
 
 if PLANTUS_ENV == 'development':
     import debug_toolbar
+    from django.conf.urls.static import static
+    from plantus.settings.settings_share import (
+        MEDIA_URL,
+        MEDIA_ROOT
+    )
     urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+        url(r'^__debug__/', include(debug_toolbar.urls))
+    ] + static(MEDIA_URL, document_root=MEDIA_ROOT)
 
 if PLANTUS_ENV in ['development', 'staging']:
     urlpatterns += [
