@@ -1,0 +1,13 @@
+[
+    {
+        "model": "django_celery_beat.periodictask",
+        "pk": 1,
+        "fields": {
+            "name": "Pots Analyser",
+            "task": "pots.tasks.pots_analyser",
+            "enabled": true,
+            "interval_id": 1,
+            "date_changed": "2017-01-01 17:00:00.000000+00:00"
+        }
+    }
+]
