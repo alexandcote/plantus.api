@@ -1,5 +1,5 @@
 import uuid
-import datetime
+from django.utils import timezone
 from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import detail_route
@@ -78,8 +78,10 @@ class OperationsViewSet(ModelViewSet):
     queryset = Operation.objects.prefetch_related('pot', 'pot__place').all()
     permission_classes = [OperationsPermission]
     serializer_class = OperationsSerializer
-    filter_backends = (DjangoFilterBackend, CompletedFilter,)
+    filter_backends = (DjangoFilterBackend, CompletedFilter, OrderingFilter)
     filter_fields = ('pot', 'pot__place',)
+    ordering_fields = ('created_at', 'completed_at')
+    ordering = ('-created_at',)
 
     def get_queryset(self):
         queryset = self.queryset
@@ -101,7 +103,7 @@ class OperationsViewSet(ModelViewSet):
     @detail_route(methods=['post'])
     def completed(self, request, pk=None):
         operation = self.get_object()
-        operation.completed_at = datetime.datetime.now()
+        operation.completed_at = timezone.now()
         operation.save()
 
         return Response(status=HTTP_204_NO_CONTENT)

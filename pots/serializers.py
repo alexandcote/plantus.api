@@ -126,7 +126,6 @@ class OperationsSerializer(ModelSerializer):
             'created_at',
             'completed_at',
         )
-        extra_kwargs = {'pot': {'required': False}}
 
     def __init__(self, *args, **kwargs):
         super(OperationsSerializer, self).__init__(*args, **kwargs)

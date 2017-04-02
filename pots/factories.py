@@ -1,3 +1,4 @@
+from django.utils import timezone
 from factory import (
     DjangoModelFactory,
     Sequence,
@@ -9,7 +10,8 @@ from places.factories import PlaceFactory
 from plants.factories import PlantFactory
 from pots.models import (
     Pot,
-    TimeSerie
+    TimeSerie,
+    Operation
 )
 
 
@@ -31,3 +33,18 @@ class TimeSerieFactory(DjangoModelFactory):
     humidity = FuzzyDecimal(0, 100, 2)
     luminosity = FuzzyDecimal(0, 100, 2)
     water_level = FuzzyDecimal(0, 100, 2)
+
+
+class OperationFactory(DjangoModelFactory):
+    class Meta:
+        model = Operation
+    pot = SubFactory(PotFactory)
+    action_id = 'water'
+
+
+class OperationCompletedFactory(DjangoModelFactory):
+    class Meta:
+        model = Operation
+    pot = SubFactory(PotFactory)
+    action_id = 'water'
+    completed_at = timezone.now()

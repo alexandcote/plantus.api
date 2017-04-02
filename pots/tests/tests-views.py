@@ -1,7 +1,6 @@
 import uuid
 from decimal import Decimal
 
-
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -14,12 +13,14 @@ from places.factories import PlaceFactory
 from plants.factories import PlantFactory
 from pots.factories import (
     PotFactory,
-    TimeSerieFactory
+    TimeSerieFactory,
+    OperationFactory,
+    OperationCompletedFactory
 )
 from pots.models import (
     Pot,
-    TimeSerie
-)
+    TimeSerie,
+    Operation)
 
 
 class TestsPotCreate(APITestCase):
@@ -87,6 +88,7 @@ class TestsPotCreate(APITestCase):
             'plant': ['This field is required.']
         }
         self.assertEqual(response.data, expected_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestPotsList(APITestCase):
@@ -600,3 +602,308 @@ class TestSearchTimeseries(APITestCase):
         response = self.client.get(url, format='json')
         result = response.data.get('results', [])
         self.assertEqual(len(result), 0)
+
+
+class TestOperationsCreate(APITestCase):
+    fixtures = ['actions']
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.place = PlaceFactory(users=[self.user])
+        self.place2 = PlaceFactory()
+        self.pot = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+
+    def test_create_operation(self):
+        """
+        Ensure that we could create a operation with an anonymous user
+        """
+        url = reverse('operation-list')
+        data = {
+            'action': 'water',
+            'pot': self.pot.id
+        }
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        result = response.data
+        self.assertEquals(result['action'], data['action'])
+        self.assertEquals(result['pot'], self.pot.id)
+        self.assertEquals(result['completed_at'], None)
+        self.assertEqual(Operation.objects.count(), 1)
+
+    def test_create_operation_other_user_pot(self):
+        """
+        Ensure that we couldn't create a operation on a other user pot
+        """
+        url = reverse('operation-list')
+        data = {
+            'action': 'water',
+            'pot': self.pot2.id
+        }
+        self.assertEqual(Operation.objects.count(), 0)
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Operation.objects.count(), 0)
+
+    def test_create_empty_operation(self):
+        """
+        Ensure that we need parameters to create a operation
+        """
+        url = reverse('operation-list')
+        data = {}
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url, data=data)
+
+        expected_error = {
+            'action': ['This field is required.'],
+            'pot': ['This field is required.']
+        }
+        self.assertEqual(response.data, expected_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class TestOperationsList(APITestCase):
+    fixtures = ['actions']
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.place2 = PlaceFactory()
+        self.pot1 = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+
+        self.operation1_1 = OperationCompletedFactory(pot=self.pot1)
+        self.operation1_2 = OperationFactory(pot=self.pot1)
+
+        self.operation2_1 = OperationCompletedFactory(pot=self.pot2)
+        self.operation2_2 = OperationFactory(pot=self.pot2)
+
+    def test_operation_list(self):
+        """
+        Ensure that a user can list only his operations
+        """
+        url = reverse('operation-list')
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.operation1_2.id)
+        self.assertEqual(result[1]['id'], self.operation1_1.id)
+
+    def test_operation_list_unauthenticated(self):
+        """
+        Ensure that not log users can't list pots
+        """
+        url = reverse('operation-list')
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_operation_list_x_authorization(self):
+        """
+        Ensure that a station can list only his operations
+        """
+        url = reverse('operation-list')
+
+        response = self.client.get(
+            url, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.operation1_2.id)
+        self.assertEqual(result[1]['id'], self.operation1_1.id)
+
+
+class TestRetrieveOperations(APITestCase):
+    fixtures = ['actions']
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.user2 = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.pot = PotFactory(place=self.place)
+        self.operation = OperationFactory(pot=self.pot)
+        self.operation2 = OperationFactory()
+
+    def test_retrieve_operation(self):
+        """
+        Ensure you can retrieve a operation
+        """
+        url = reverse('operation-detail', kwargs={"pk": self.operation.pk})
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = response.data
+        self.assertEquals(result['action'], 'water')
+        self.assertEquals(result['pot'], self.pot.id)
+        self.assertEquals(result['pot_identifier'], str(self.pot.identifier))
+
+    def test_retrieve_other_operation(self):
+        """
+        Ensure you cannot retrieve other user operation
+        """
+        url = reverse('operation-detail', kwargs={"pk": self.operation.pk})
+        self.client.force_authenticate(user=self.user2)
+
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_operation_x_authorization(self):
+        """
+        Ensure a station can retrieve a operation
+        """
+        url = reverse('operation-detail', kwargs={"pk": self.operation.pk})
+
+        response = self.client.get(
+            url, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = response.data
+        self.assertEquals(result['action'], 'water')
+        self.assertEquals(result['pot'], self.pot.id)
+        self.assertEquals(result['pot_identifier'], str(self.pot.identifier))
+
+    def test_retrieve_operation_other_x_authorization(self):
+        """
+        Ensure a station can't retrieve a operation of an other station
+        """
+        url = reverse('operation-detail', kwargs={"pk": self.operation2.pk})
+
+        response = self.client.get(
+            url, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestCompletedOperations(APITestCase):
+    fixtures = ['actions']
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.superuser = SuperUserFactory()
+        self.place = PlaceFactory(users=[self.user])
+        self.place2 = PlaceFactory()
+        self.pot = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+        self.operation = OperationFactory(pot=self.pot)
+        self.operation2 = OperationFactory(pot=self.pot2)
+
+    def test_completed_operation_x_authorization(self):
+        """
+        Ensure that a station can completed its operation
+        """
+        url = reverse('operation-completed', kwargs={"pk": self.operation.pk})
+        response = self.client.post(
+            url, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_completed_operation_x_authorization_other(self):
+        """
+        Ensure that a station can't completed an operation of an other place
+        """
+        url = reverse('operation-completed', kwargs={"pk": self.operation2.pk})
+        response = self.client.post(
+            url, HTTP_X_AUTHORIZATION=str(self.place.identifier))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_completed_operation_superuser(self):
+        """
+        Ensure that a superuser can completed a operation
+        """
+        url = reverse('operation-completed', kwargs={"pk": self.operation.pk})
+        self.client.force_authenticate(user=self.superuser)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_completed_operation_normal_user(self):
+        """
+        Ensure that a normal user can't completed a operation
+        """
+        url = reverse('operation-completed', kwargs={"pk": self.operation.pk})
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class TestOperationsFilters(APITestCase):
+    fixtures = ['actions']
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.place2 = PlaceFactory()
+        self.pot1 = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+
+        self.operation1_1 = OperationCompletedFactory(pot=self.pot1)
+        self.operation1_2 = OperationFactory(pot=self.pot1)
+        self.operation1_3 = OperationCompletedFactory(pot=self.pot1)
+        self.operation1_4 = OperationFactory(pot=self.pot1)
+
+        self.operation2_1 = OperationCompletedFactory(pot=self.pot2)
+        self.operation2_2 = OperationFactory(pot=self.pot2)
+        self.operation2_3 = OperationCompletedFactory(pot=self.pot2)
+        self.operation2_4 = OperationFactory(pot=self.pot2)
+
+    def test_operation_list_completed_filter(self):
+        """
+        Ensure that completed filter work
+        """
+        self.client.force_authenticate(user=self.user)
+
+        url = "{0}?completed=0".format(reverse('operation-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.operation1_4.id)
+        self.assertEqual(result[1]['id'], self.operation1_2.id)
+
+        url = "{0}?completed=1".format(reverse('operation-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.operation1_3.id)
+        self.assertEqual(result[1]['id'], self.operation1_1.id)
+
+    def test_operation_list_ordering_filter(self):
+        """
+        Ensure that ordering filter work
+        """
+        self.client.force_authenticate(user=self.user)
+
+        url = "{0}?ordering=-completed_at".format(reverse('operation-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 4)
+        self.assertEqual(result[0]['id'], self.operation1_4.id)
+        self.assertEqual(result[1]['id'], self.operation1_2.id)
+        self.assertEqual(result[2]['id'], self.operation1_3.id)
+        self.assertEqual(result[3]['id'], self.operation1_1.id)
+
+        url = "{0}?ordering=completed_at".format(reverse('operation-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 4)
+        self.assertEqual(result[0]['id'], self.operation1_3.id)
+        self.assertEqual(result[1]['id'], self.operation1_1.id)
+        self.assertEqual(result[2]['id'], self.operation1_4.id)
+        self.assertEqual(result[3]['id'], self.operation1_2.id)
