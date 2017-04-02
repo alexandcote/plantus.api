@@ -1,0 +1,62 @@
+[
+    {
+        "model": "pots.pot",
+        "pk": 1,
+        "fields": {
+            "name": "Pot #1",
+            "place": 1,
+            "plant": 1,
+            "identifier": "7ee45d53-df2a-40e8-a2b3-c32ca07348c0"
+        }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 2,
+        "fields": {
+            "name": "Pot #2",
+            "place": 1,
+            "plant": 2,
+            "identifier": "09bcf78c-5dbb-4348-86f4-17853248c65c"
+        }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 3,
+        "fields": {
+            "name": "Pot #3",
+            "place": 1,
+            "plant": 3,
+            "identifier": "f3161d18-1870-4daf-8f04-821b3379d295"
+        }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 4,
+        "fields": {
+            "name": "Pot #4",
+            "place": 2,
+            "plant": 1,
+            "identifier": "241f3904-a8b1-4ed1-8d0c-ab32ea9703b0"
+        }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 5,
+        "fields": {
+            "name": "Pot #5",
+            "place": 2,
+            "plant": 2,
+            "identifier": "5a490fff-0692-4c9a-bd69-d156dc81d1ca"
+        }
+    },
+    {
+        "model": "pots.pot",
+        "pk": 6,
+        "fields": {
+            "name": "Pot Gretzky",
+            "place": 4,
+            "plant": 1,
+            "identifier": "28061815-9715-47cf-bcce-48599031e0ed"
+        }
+    }
+]

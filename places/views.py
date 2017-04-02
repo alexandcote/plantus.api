@@ -1,8 +1,5 @@
-from rest_framework.decorators import detail_route
-from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from authentication.serializers import UserSerializer
 from places.models import Place
 from places.permissions import PlacesPermission
 from places.serializers import PlaceSerializer
@@ -10,26 +7,18 @@ from places.serializers import PlaceSerializer
 
 class PlaceViewSet(ModelViewSet):
     """
-    A simple ViewSet for viewing and editing accounts.
+    A simple ViewSet for viewing and editing places.
     """
-    queryset = Place.objects.filter()
+    queryset = Place.objects.prefetch_related('users', 'pots').all()
     permission_classes = [PlacesPermission]
     serializer_class = PlaceSerializer
+    filter_fields = ('users',)
 
-    def list(self, request, **kwargs):
+    def get_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
 
-        if request.user.is_superuser:
-            queryset = Place.objects.all()
-        else:
-            queryset = Place.objects.filter(users=request.user)
+        if not user.is_superuser:
+            queryset = queryset.filter(users=user)
 
-        serializer = PlaceSerializer(
-            queryset, context={'request': request}, many=True)
-        return Response(serializer.data)
-
-    @detail_route()
-    def users(self, request, pk=None):
-        place = self.get_object()
-        serializer = UserSerializer(place.users.all(), context={
-            'request': request}, many=True)
-        return Response(serializer.data)
+        return queryset

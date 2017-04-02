@@ -1,28 +1,29 @@
-from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.serializers import ModelSerializer
-
 from places.models import Place
 from places.services import create_place, update_place
 
 
 class PlaceSerializer(ModelSerializer):
-    users_listing = HyperlinkedIdentityField(view_name='place-users')
 
     class Meta:
         model = Place
         fields = (
             'id',
             'name',
-            'ip_address',
-            'port',
+            'identifier',
             'url',
-            'users',
-            'users_listing'
+            'users'
         )
+        extra_kwargs = {'identifier': {'required': True}}
 
-        extra_kwargs = {
-            'users': {'required': False},
-        }
+    def __init__(self, *args, **kwargs):
+        super(PlaceSerializer, self).__init__(*args, **kwargs)
+
+        # Can't update the identifier of a place.
+        view = self.context.get('view', None)
+        if view and hasattr(view, 'action') and \
+                view.action in ['update', 'partial_update']:
+            self.fields['identifier'].read_only = True
 
     def create(self, validated_data):
         """
@@ -31,7 +32,7 @@ class PlaceSerializer(ModelSerializer):
 
         # Set the current user to a place if no users are passed
         users = validated_data.get('users', None)
-        if users is None:
+        if not users:
             validated_data['users'] = [self.context['request'].user]
 
         place = create_place(validated_data)

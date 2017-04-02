@@ -7,3 +7,4 @@ from plants.models import Plant
 class PlantAdmin(admin.ModelAdmin):
     list_display = (
         'name', 'humidity_spec', 'luminosity_spec', 'temperature_spec')
+    search_fields = ['name', 'description']

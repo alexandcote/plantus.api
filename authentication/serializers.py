@@ -1,5 +1,5 @@
-from rest_framework.relations import HyperlinkedIdentityField
 from rest_framework.serializers import ModelSerializer
+from rest_framework_jwt.compat import PasswordField
 
 from authentication.models import User
 from authentication.services import (
@@ -9,7 +9,7 @@ from authentication.services import (
 
 
 class UserSerializer(ModelSerializer):
-    places_listing = HyperlinkedIdentityField(view_name='user-places')
+    password = PasswordField(write_only=True, required=True)
 
     class Meta:
         model = User
@@ -20,13 +20,7 @@ class UserSerializer(ModelSerializer):
             'email',
             'password',
             'url',
-            'places',
-            'places_listing',
         )
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'places': {'required': False},
-        }
 
     def create(self, validated_data):
         """

@@ -1,0 +1,9 @@
+[
+    {
+        "model": "pots.action",
+        "pk": "water",
+        "fields": {
+            "label": "Water"
+        }
+    }
+]

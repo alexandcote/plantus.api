@@ -48,13 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_celery_results',
-    'django_celery_beat',
     'rest_framework',
     'corsheaders',
     'authentication',
     'places',
-    'plants'
+    'plants',
+    'pots'
 ]
 
 AUTH_USER_MODEL = 'authentication.user'
@@ -81,13 +80,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
     ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+     ),
     'PAGE_SIZE': 10,
 }
 
@@ -125,17 +126,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
-# Celery configuration
-CELERY_BROKER_URL = "memory://"
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_ACCEPT_CONTENT = ['json']
-CELERY_TIMEZONE = 'America/Montreal'
-CELERY_ENABLE_UTC = True
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -188,6 +178,8 @@ try:
         from plantus.settings.settings_development import configure
     elif PLANTUS_ENV == 'testing':
         from plantus.settings.settings_testing import configure
+    elif PLANTUS_ENV == 'staging':
+        from plantus.settings.settings_staging import configure
     else:
         from plantus.settings.settings_production import configure
     current_module = sys.modules[__name__]

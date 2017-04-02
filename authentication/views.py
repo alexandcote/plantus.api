@@ -1,11 +1,11 @@
-from rest_framework.decorators import list_route, detail_route
+from django.db.models import Q
+from rest_framework.decorators import list_route
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from authentication.models import User
 from authentication.permissions import UserPermission
 from authentication.serializers import UserSerializer
-from places.serializers import PlaceSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -15,13 +15,19 @@ class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [UserPermission]
+    filter_fields = ('places',)
 
-    @detail_route()
-    def places(self, request, pk=None):
-        user = self.get_object()
-        serializer = PlaceSerializer(user.places.all(), context={
-            'request': request}, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        queryset = self.queryset
+        user = self.request.user
+
+        if not user.is_superuser:
+            queryset = User.objects\
+                .filter(Q(places__in=user.places.all()) | Q(id=user.id))\
+                .distinct()\
+                .order_by('last_name', 'first_name')
+
+        return queryset
 
     @list_route()
     def me(self, request):

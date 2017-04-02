@@ -12,13 +12,32 @@ class TestsPlantCreate(APITestCase):
 
     def setUp(self):
         self.plant = PlantFactory()
-        self.user = SuperUserFactory()
+        self.user = UserFactory()
+        self.superuser = SuperUserFactory()
+
+    def test_plant_create_unauthenticated_user(self):
+        """
+        Ensure that we couldn't create a plant if you are not authenticated
+        """
+        url = reverse('plant-list')
+        data = {
+            'name': 'Rose',
+            'description': 'Description de la rose',
+            'humidity_spec': '45.2',
+            'luminosity_spec': '12.32',
+            'temperature_spec': '1.3'
+        }
+        response = self.client.post(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_plant_create_normal_user(self):
         """
-        Ensure that we couldn't create a plant
+        Ensure that we couldn't create a plant if you are a normal user
         """
         url = reverse('plant-list')
+        self.client.force_authenticate(user=self.user)
+
         data = {
             'name': 'Rose',
             'description': 'Description de la rose',
@@ -35,7 +54,7 @@ class TestsPlantCreate(APITestCase):
         Ensure super user can create a plant
         """
         url = reverse('plant-list')
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=self.superuser)
 
         data = {
             'name': 'Rose',
@@ -61,7 +80,7 @@ class TestsPlantCreate(APITestCase):
         Ensure superuser can't create an empty plant
         """
         url = reverse('plant-list')
-        self.client.force_authenticate(user=self.user)
+        self.client.force_authenticate(user=self.superuser)
 
         data = {
             'name': '',
@@ -87,6 +106,19 @@ class TestsPlantList(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.plant.id)
+        self.assertEqual(result[0]['name'], self.plant.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant.temperature_spec)
 
 
 class TestsPlantRetrieve(APITestCase):
@@ -204,10 +236,80 @@ class TestPlantsDelete(APITestCase):
 
     def test_plant_delete_super_users(self):
         """
-        Ensure that user can't delete a plant
+        Ensure that super user can delete a plant
         """
         url = reverse('plant-detail', kwargs={"pk": self.plant.pk})
         self.client.force_authenticate(user=self.superuser)
         response = self.client.delete(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class TestsPlantSearch(APITestCase):
+    def setUp(self):
+        self.plant = PlantFactory()
+        self.plant2 = PlantFactory()
+
+    def test_plant_search_by_name(self):
+        """
+        Ensure that user can search a plant by the name
+        """
+        url = reverse('plant-list')
+        url += "?search={search}".format(search=self.plant.name)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+
+        self.assertEqual(result[0]['id'], self.plant.id)
+        self.assertEqual(result[0]['name'], self.plant.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant.temperature_spec)
+
+    def test_plant_search_by_desc(self):
+        """
+        Ensure that user can search a plant by the description
+        """
+        url = reverse('plant-list')
+        url += "?search={search}".format(search=self.plant2.description)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.plant2.id)
+        self.assertEqual(result[0]['name'], self.plant2.name)
+        self.assertEqual(
+            Decimal(result[0]['humidity_spec']),
+            self.plant2.humidity_spec)
+        self.assertEqual(
+            Decimal(result[0]['luminosity_spec']),
+            self.plant2.luminosity_spec)
+        self.assertEqual(
+            Decimal(result[0]['temperature_spec']),
+            self.plant2.temperature_spec)
+
+    def test_plant_search_all(self):
+        """
+        Ensure that user can search all the plants
+        """
+        url = reverse('plant-list')
+        url += "?search={search}".format(search='')
+        response = self.client.get(url, format='json')
+        result = response.data
+        self.assertEqual(result['count'], 2)
+
+    def test_plant_search_fail(self):
+        """
+        Ensure that user can do a wrong search without any result
+        """
+        url = reverse('plant-list')
+        # do a search with junk
+        url += "?search={search}".format(search='alkdjslkjdfl')
+        response = self.client.get(url, format='json')
+        result = response.data
+        self.assertEqual(result['count'], 0)

@@ -1,3 +1,5 @@
+import uuid
+
 from places.models import Place
 
 
@@ -6,11 +8,10 @@ def create_place(data):
     Create a place with parameters
     """
     name = data.get('name', '')
-    ip_address = data.get('ip_address', '0.0.0.0')
-    port = data.get('port', 0)
+    identifier = data.get('identifier', uuid.uuid4())
     users = data.get('users', None)
 
-    place = Place(name=name, ip_address=ip_address, port=port)
+    place = Place(name=name, identifier=identifier)
     place.save()
 
     if users:
@@ -24,8 +25,6 @@ def update_place(place, data):
     Update a place with parameters
     """
     place.name = data.get('name', place.name)
-    place.ip_address = data.get('ip_address', place.ip_address)
-    place.port = data.get('port', place.port)
     users = data.get('users', None)
 
     if users:

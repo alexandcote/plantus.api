@@ -1,3 +1,5 @@
+import uuid
+
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -19,39 +21,34 @@ class TestsPlaceCreate(APITestCase):
         url = reverse('place-list')
         data = {
             'name': 'Villa #8',
-            'ip_address': '192.168.1.7',
-            'port': 192,
             'users': [self.user.id],
+            'identifier': uuid.uuid4()
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        place = Place.objects.get(name='Villa #8')
+        place = Place.objects.last()
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
+        self.assertEquals(place.identifier, data['identifier'])
         self.assertEqual(place.users.count(), 1)
 
-    def test_place_create_with_no_users(self):
+    def test_place_create_with_identifier(self):
         """
-        Ensure that we could create a place without a user
+        Ensure that we could create a place with identifier
         """
         url = reverse('place-list')
         data = {
             'name': 'Villa #8',
-            'ip_address': '192.168.1.7',
-            'port': 192,
+            'identifier': uuid.uuid4(),
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        place = Place.objects.get(name='Villa #8')
+        place = Place.objects.last()
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
-        self.assertEqual(place.users.count(), 0)
+        self.assertEqual(place.identifier, data['identifier'])
 
     def test_place_create_empty(self):
         """
@@ -64,10 +61,10 @@ class TestsPlaceCreate(APITestCase):
 
         expected_error = {
             'name': ['This field is required.'],
-            'ip_address': ['This field is required.'],
-            'port': ['This field is required.']
+            'identifier': ['This field is required.']
         }
         self.assertEqual(response.data, expected_error)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestPlacesList(APITestCase):
@@ -87,12 +84,11 @@ class TestPlacesList(APITestCase):
 
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        result = response.data
+        result = response.data.get('results', [])
+
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['id'], self.place1.id)
         self.assertEqual(result[0]['name'], self.place1.name)
-        self.assertEqual(result[0]['ip_address'], self.place1.ip_address)
-        self.assertEqual(result[0]['port'], self.place1.port)
 
     def test_place_list_unauthenticated(self):
         """
@@ -101,7 +97,7 @@ class TestPlacesList(APITestCase):
         url = reverse('place-list')
 
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class TestUpdatePlaces(APITestCase):
@@ -118,9 +114,8 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'ip_address': '192.170.2.9',
-            'port': 1334,
             'users': [self.user.id],
+            'identifier': uuid.uuid4()
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(url, data=data)
@@ -128,12 +123,12 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.ip_address, data['ip_address'])
-        self.assertEquals(place.port, data['port'])
+        self.assertNotEquals(place.identifier, data['identifier'])
+        self.assertEquals(place.identifier, place.identifier)
         self.assertEqual(place.users.count(), 1)
 
-        # Without port should raise a Bad Request
-        data.pop('port')
+        # Without name should raise a Bad Request
+        data.pop('name')
         response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -144,7 +139,6 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'port': 1334
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(url, data=data)
@@ -152,7 +146,23 @@ class TestUpdatePlaces(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         place = Place.objects.get(name='Villa #10')
         self.assertEquals(place.name, data['name'])
-        self.assertEquals(place.port, data['port'])
+        self.assertEqual(place.users.count(), 1)
+
+    def test_patch_place_identifier(self):
+        """
+        Ensure that a patch works
+        """
+        url = reverse('place-detail', kwargs={"pk": self.place.pk})
+        data = {
+            'identifier': uuid.uuid4(),
+        }
+        self.client.force_authenticate(user=self.user)
+        response = self.client.patch(url, data=data)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        place = Place.objects.get(id=self.place.id)
+        self.assertNotEquals(place.identifier, data['identifier'])
+        self.assertEquals(place.identifier, self.place.identifier)
         self.assertEqual(place.users.count(), 1)
 
     def test_update_other_place(self):
@@ -162,14 +172,12 @@ class TestUpdatePlaces(APITestCase):
         url = reverse('place-detail', kwargs={"pk": self.place.pk})
         data = {
             'name': 'Villa #10',
-            'ip_address': '192.170.2.9',
-            'port': 1334,
             'users': [self.user2.id],
         }
         self.client.force_authenticate(user=self.user2)
         response = self.client.put(url, data=data)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestDeletePlaces(APITestCase):
@@ -198,7 +206,7 @@ class TestDeletePlaces(APITestCase):
 
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class TestRetrievePlaces(APITestCase):
@@ -219,8 +227,6 @@ class TestRetrievePlaces(APITestCase):
 
         result = response.data
         self.assertEquals(result['name'], self.place.name)
-        self.assertEquals(result['ip_address'], self.place.ip_address)
-        self.assertEquals(result['port'], self.place.port)
         self.assertTrue(self.user.id in result['users'])
 
     def test_retrieve_other_place(self):
@@ -232,4 +238,38 @@ class TestRetrievePlaces(APITestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestSearchPlace(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.user2 = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.place2 = PlaceFactory(users=(self.user2,))
+
+    def test_place_search_by_user(self):
+        """
+        Ensure you can search a place by user
+        """
+        url = reverse('place-list')
+        url += "?users={search}".format(search=self.user.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.place.id)
+        self.assertEqual(result[0]['name'], self.place.name)
+
+    def test_place_search_by_other_user(self):
+        """
+        Ensure you can't search a place from an other user
+        """
+        url = reverse('place-list')
+        url += "?users={search}".format(search=self.user2.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 0)

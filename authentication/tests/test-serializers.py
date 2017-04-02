@@ -21,8 +21,7 @@ class TestUserSerializer(TestCase):
             'first_name': '',
             'last_name': '',
             'email': '',
-            'password': '',
-            'places': []
+            'password': ''
         }
         self.assertEqual(serializer.data, data)
 
