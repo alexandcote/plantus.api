@@ -9,9 +9,10 @@ def create_place(data):
     """
     name = data.get('name', '')
     identifier = data.get('identifier', uuid.uuid4())
+    picture = data.get('picture', None)
     users = data.get('users', None)
 
-    place = Place(name=name, identifier=identifier)
+    place = Place(name=name, identifier=identifier, picture=picture)
     place.save()
 
     if users:
@@ -25,6 +26,7 @@ def update_place(place, data):
     Update a place with parameters
     """
     place.name = data.get('name', place.name)
+    place.picture = data.get('picture', place.picture)
     users = data.get('users', None)
 
     if users:
