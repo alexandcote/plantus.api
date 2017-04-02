@@ -1,5 +1,7 @@
 import uuid
 from decimal import Decimal
+
+
 from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
@@ -11,7 +13,8 @@ from authentication.factories import (
 from places.factories import PlaceFactory
 from plants.factories import PlantFactory
 from pots.factories import (
-    PotFactory
+    PotFactory,
+    TimeSerieFactory
 )
 from pots.models import (
     Pot,
@@ -141,6 +144,7 @@ class TestUpdatePots(APITestCase):
             'name': 'Pot #1',
             'place': self.place.id,
             'plant': self.plant.id,
+            'identifier': str(uuid.uuid4()),
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.put(url, data=data)
@@ -149,6 +153,8 @@ class TestUpdatePots(APITestCase):
 
         pot = Pot.objects.get(id=self.pot.id)
         self.assertEquals(pot.name, data['name'])
+        self.assertNotEquals(str(pot.identifier), data['identifier'])
+        self.assertEquals(pot.identifier, self.pot.identifier)
         self.assertEquals(pot.place.id, data['place'])
         self.assertEquals(pot.plant.id, data['plant'])
 
@@ -165,6 +171,7 @@ class TestUpdatePots(APITestCase):
         data = {
             'name': 'Pot #2',
             'plant': self.plant.id,
+            'identifier': str(uuid.uuid4())
         }
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(url, data=data)
@@ -172,12 +179,10 @@ class TestUpdatePots(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pot = Pot.objects.get(id=self.pot.id)
         self.assertEquals(pot.name, data['name'])
+        self.assertNotEquals(str(pot.identifier), data['identifier'])
+        self.assertEquals(pot.identifier, self.pot.identifier)
         self.assertEquals(pot.place.id, self.place.id)
         self.assertEquals(pot.plant.id, self.plant.id)
-
-        data = {'place': self.place2.id}
-        response = self.client.patch(url, data=data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_update_other_user_pot(self):
         """
@@ -315,7 +320,7 @@ class TestSearchPot(APITestCase):
         self.assertEqual(len(result), 0)
 
 
-class TestsTimeSeries(APITestCase):
+class TestsTimeSeriesCreate(APITestCase):
     def setUp(self):
         self.user = SuperUserFactory()
         self.place = PlaceFactory(users=[self.user.id])
@@ -436,3 +441,162 @@ class TestsTimeSeries(APITestCase):
         response = self.client.post(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class TestsTimeSeriesList(APITestCase):
+
+    def setUp(self):
+        self.user = UserFactory()
+        self.place = PlaceFactory(users=[self.user])
+        self.pot = PotFactory(place=self.place)
+        self.timeserie1 = TimeSerieFactory(pot=self.pot)
+        self.timeserie2 = TimeSerieFactory(pot=self.pot)
+        self.timeserie3 = TimeSerieFactory()
+
+    def test_timeserie_list(self):
+        """
+        Ensure that a user can list timeseries
+        """
+        url = reverse('timeserie-list')
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.timeserie2.id)
+        self.assertEqual(result[1]['id'], self.timeserie1.id)
+
+    def test_timeserie_ordering(self):
+        """
+        Ensure that a user can list timeseries and order it
+        """
+        self.client.force_authenticate(user=self.user)
+
+        url = "{0}?ordering=date".format(reverse('timeserie-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.timeserie1.id)
+        self.assertEqual(result[1]['id'], self.timeserie2.id)
+
+        url = "{0}?ordering=-date".format(reverse('timeserie-list'))
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0]['id'], self.timeserie2.id)
+        self.assertEqual(result[1]['id'], self.timeserie1.id)
+
+    def test_timeserie_list_unauthenticated(self):
+        """
+        Ensure that unauthenticated users can't list timeseries
+        """
+        url = reverse('timeserie-list')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class TestRetrieveTimeSeries(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.user2 = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.pot = PotFactory(place=self.place)
+        self.timeserie = TimeSerieFactory(pot=self.pot)
+
+    def test_retrieve_timeserie(self):
+        """
+        Ensure you can retrieve a timeserie
+        """
+        url = reverse('timeserie-detail', kwargs={"pk": self.timeserie.pk})
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        result = response.data
+        self.assertEquals(
+            Decimal(result['temperature']), self.timeserie.temperature)
+        self.assertEquals(
+            Decimal(result['humidity']), self.timeserie.humidity)
+        self.assertEquals(
+            Decimal(result['luminosity']), self.timeserie.luminosity)
+        self.assertEquals(
+            Decimal(result['water_level']), self.timeserie.water_level)
+        self.assertEquals(result['pot'], self.pot.id)
+
+    def test_retrieve_other_timeserie(self):
+        """
+        Ensure you cannot retrieve other user timeserie
+        """
+        url = reverse('timeserie-detail', kwargs={"pk": self.timeserie.pk})
+        self.client.force_authenticate(user=self.user2)
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class TestSearchTimeseries(APITestCase):
+    def setUp(self):
+        self.user = UserFactory()
+        self.user2 = UserFactory()
+        self.place = PlaceFactory(users=(self.user,))
+        self.place2 = PlaceFactory(users=(self.user2,))
+        self.pot = PotFactory(place=self.place)
+        self.pot2 = PotFactory(place=self.place2)
+        self.timeserie = TimeSerieFactory(pot=self.pot)
+        self.timeserie2 = TimeSerieFactory(pot=self.pot2)
+
+    def test_timeserie_filter_by_place(self):
+        """
+        Ensure you can filter a timeserie by place
+        """
+        url = reverse('timeserie-list')
+        url += "?pot__place={search}".format(search=self.place.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.timeserie.id)
+
+    def test_timeserie_filter_by_other_user_place(self):
+        """
+        Ensure you can't filter a timeserie from an other user place
+        """
+        url = reverse('timeserie-list')
+        url += "?pot__place={search}".format(search=self.place2.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 0)
+
+    def test_timeserie_filter_by_pot(self):
+        """
+        Ensure you can filter a timeserie by pot
+        """
+        url = reverse('timeserie-list')
+        url += "?pot={search}".format(search=self.pot.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['id'], self.timeserie.id)
+
+    def test_timeserie_filter_by_other_user_pot(self):
+        """
+        Ensure you can't filter a timeserie from an other user pot
+        """
+        url = reverse('timeserie-list')
+        url += "?pot={search}".format(search=self.pot2.id)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url, format='json')
+        result = response.data.get('results', [])
+        self.assertEqual(len(result), 0)

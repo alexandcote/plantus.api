@@ -23,6 +23,7 @@ class TimeSeriesSerializer(ModelSerializer):
     class Meta:
         model = TimeSerie
         fields = (
+            'id',
             'date',
             'temperature',
             'humidity',

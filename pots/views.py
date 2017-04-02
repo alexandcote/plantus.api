@@ -59,6 +59,7 @@ class TimeSeriesViewSet(ModelViewSet):
     filter_fields = ('pot', 'pot__place',)
     filter_backends = (DjangoFilterBackend, DateFilter, OrderingFilter,)
     ordering_fields = ('date',)
+    ordering = ('-date',)
 
     def get_queryset(self):
         queryset = self.queryset
