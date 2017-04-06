@@ -353,7 +353,11 @@ class TestsTimeSeriesCreate(APITestCase):
         self.assertEquals(Decimal(result['humidity']), data['humidity'])
         self.assertEquals(Decimal(result['luminosity']), data['luminosity'])
         self.assertEquals(Decimal(result['water_level']), data['water_level'])
-        self.assertEquals(Decimal(result['pot']), self.pot.id)
+        self.assertEquals(result['pot']['id'], self.pot.id)
+        self.assertEquals(result['pot']['name'], self.pot.name)
+        self.assertEquals(
+            result['pot']['identifier'], str(self.pot.identifier))
+        self.assertTrue(self.pot.picture.url in result['pot']['picture'])
         self.assertEqual(TimeSerie.objects.count(), 1)
 
     def test_create_timeserie_bad_identifier(self):
@@ -531,7 +535,11 @@ class TestRetrieveTimeSeries(APITestCase):
             Decimal(result['luminosity']), self.timeserie.luminosity)
         self.assertEquals(
             Decimal(result['water_level']), self.timeserie.water_level)
-        self.assertEquals(result['pot'], self.pot.id)
+        self.assertEquals(result['pot']['id'], self.pot.id)
+        self.assertEquals(result['pot']['name'], self.pot.name)
+        self.assertEquals(
+            result['pot']['identifier'], str(self.pot.identifier))
+        self.assertTrue(self.pot.picture.url in result['pot']['picture'])
 
     def test_retrieve_other_timeserie(self):
         """
