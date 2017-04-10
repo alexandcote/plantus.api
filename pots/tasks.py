@@ -32,7 +32,8 @@ def pot_analyser(pot):
         .order_by('-date')[:NB_VALUE]\
         .aggregate(average_humidity=Avg('humidity'))
 
-    if pot.plant.humidity_spec > time_series_average['average_humidity'] \
+    if time_series_average['average_humidity'] and pot.plant.humidity_spec > \
+            time_series_average['average_humidity'] \
             and not Operation.objects.filter(
             pot=pot, action_id='water', completed_at__isnull=True).exists():
         Operation(action_id='water', pot=pot).save()
