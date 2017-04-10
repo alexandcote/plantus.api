@@ -16,4 +16,7 @@ def configure(settings):
     settings.CELERY_RESULT_BACKEND = 'django-db'
 
     # CORS configuration
-    settings.CORS_ORIGIN_WHITELIST = ('plantus.xyz',)
+    settings.CORS_ORIGIN_WHITELIST = (
+        'plantus.xyz',
+        'localhost:3000',
+    )
