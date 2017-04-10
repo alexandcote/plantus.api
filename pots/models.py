@@ -34,10 +34,11 @@ class Pot(models.Model):
 
     def save(self, *args, **kwargs):
         super(Pot, self).save()
-        filename = str(self.picture.path)
-        img = Image.open(filename)
-        img = ImageOps.fit(img, SIZE, Image.ANTIALIAS)
-        img.save(filename)
+        if self.picture:
+            filename = str(self.picture.path)
+            img = Image.open(filename)
+            img = ImageOps.fit(img, SIZE, Image.ANTIALIAS)
+            img.save(filename)
 
 
 class TimeSerie(models.Model):
