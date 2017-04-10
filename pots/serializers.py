@@ -15,10 +15,24 @@ from pots.models import (
 )
 
 
+class PotSerializer(ModelSerializer):
+    class Meta:
+        model = Pot
+        fields = (
+            'id',
+            'name',
+            'picture',
+            'identifier',
+            'url',
+        )
+
+
 class TimeSeriesSerializer(ModelSerializer):
 
     pot_identifier = UUIDField(
         source='pot.identifier', write_only=True, required=True)
+
+    pot = PotSerializer(read_only=True)
 
     class Meta:
         model = TimeSerie
@@ -33,6 +47,13 @@ class TimeSeriesSerializer(ModelSerializer):
             'pot'
         )
         extra_kwargs = {'pot': {'read_only': True}}
+
+    def __init__(self, *args, **kwargs):
+        super(TimeSeriesSerializer, self).__init__(*args, **kwargs)
+        nested = kwargs['context'].get('nested', True)
+
+        if not nested:
+            self.fields.pop('pot')
 
     def get_fields(self):
         fields = super(TimeSeriesSerializer, self).get_fields()
@@ -79,6 +100,7 @@ class PotsSerializer(ModelSerializer):
         fields = (
             'id',
             'name',
+            'picture',
             'identifier',
             'place',
             'plant',
@@ -99,7 +121,7 @@ class PotsSerializer(ModelSerializer):
     def get_spec(self, obj):
         if hasattr(obj, 'current_spec') and len(obj.current_spec) > 0:
             return TimeSeriesSerializer(obj.current_spec[0], context={
-                'request': self.context['request']}).data
+                'request': self.context['request'], 'nested': False}).data
         return None
 
     def get_fields(self):

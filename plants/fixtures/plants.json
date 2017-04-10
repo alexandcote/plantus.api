@@ -5,7 +5,7 @@
         "fields": {
             "name": "Plant #1",
             "description": "Description #1",
-            "humidity_spec": "10",
+            "humidity_spec": "98",
             "luminosity_spec": "10",
             "temperature_spec": "10"
         }

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
+    'django_celery_beat',
     'rest_framework',
     'corsheaders',
     'authentication',
@@ -89,7 +91,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': (
         'django_filters.rest_framework.DjangoFilterBackend',
      ),
-    'PAGE_SIZE': 10,
+    'PAGE_SIZE': 100,
 }
 
 ROOT_URLCONF = 'plantus.urls'
@@ -126,6 +128,17 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+# Celery configuration
+CELERY_BROKER_URL = "memory://"
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TIMEZONE = 'America/Montreal'
+CELERY_ENABLE_UTC = True
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -172,6 +185,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
+MEDIA_URL = '/media/'
 
 try:
     if PLANTUS_ENV == 'development':

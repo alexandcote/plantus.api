@@ -92,3 +92,7 @@ ENV/
 
 # IDE
 .idea
+
+# Media
+media/**
+!media/default/
