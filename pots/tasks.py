@@ -9,7 +9,7 @@ from pots.models import (
 NB_VALUE = 10
 
 
-@app.task(max_retries=1, name='tasks.pots_analyser')
+@app.task(max_retries=1)
 def pots_analyser(*args, **kwargs):
     """
     Task that analyse each pot of the database
@@ -20,7 +20,7 @@ def pots_analyser(*args, **kwargs):
         pot_analyser.delay(pot)
 
 
-@app.task(max_retries=3, name='tasks.pot_analyser')
+@app.task(max_retries=3)
 def pot_analyser(pot):
     """
     Task that analyse a pot and create operation
