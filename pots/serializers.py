@@ -121,7 +121,7 @@ class PotsSerializer(ModelSerializer):
     def get_spec(self, obj):
         if hasattr(obj, 'current_spec') and len(obj.current_spec) > 0:
             return TimeSeriesSerializer(obj.current_spec[0], context={
-                'request': self.context['request'], 'nested': False }).data
+                'request': self.context['request'], 'nested': False}).data
         return None
 
     def get_fields(self):
