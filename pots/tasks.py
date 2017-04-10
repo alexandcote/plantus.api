@@ -10,7 +10,7 @@ NB_VALUE = 10
 
 
 @app.task(max_retries=1, name='tasks.pots_analyser')
-def pots_analyser():
+def pots_analyser(*args, **kwargs):
     """
     Task that analyse each pot of the database
     """
