@@ -9,7 +9,7 @@ from pots.models import (
 NB_VALUE = 10
 
 
-@app.task(bind=True)
+@app.task
 def pots_analyser():
     """
     Task that analyse each pot of the database
