@@ -1,5 +1,9 @@
 import uuid
 
+from PIL import (
+    Image,
+    ImageOps
+)
 from django.db import models
 from django.db.models import ImageField
 
@@ -7,6 +11,8 @@ from places.models import Place
 from plants.models import Plant
 
 from django.utils.translation import ugettext_lazy as _
+
+SIZE = (300, 200,)
 
 
 class Pot(models.Model):
@@ -25,6 +31,13 @@ class Pot(models.Model):
          Display the pot object
         """
         return self.name
+
+    def save(self, *args, **kwargs):
+        super(Pot, self).save()
+        filename = str(self.picture.path)
+        img = Image.open(filename)
+        img = ImageOps.fit(img, SIZE, Image.ANTIALIAS)
+        img.save(filename)
 
 
 class TimeSerie(models.Model):
